@@ -10,14 +10,10 @@ namespace SevenSwords.CharacterCore
     [SerializeField]
     public class CharacterVariables
     {
-        //Ground Speed
-        public float walkspeed = 3f;
-        public float runspeed = 6;
 
         //Jumping stuff
         public float gravity = -9f;
         public float distToGround = 0.02f;
-        public float jumpPower = 20f;
         public float gravTime = 0.1f;
 
         //General Movement
@@ -44,9 +40,6 @@ namespace SevenSwords.CharacterCore
         // Start is called before the first frame update
         void Start()
         {
-            //put this here for now needs to go into startup
-            Application.targetFrameRate = 60;
-
             _stateMachine.ChangeState(new Idle(this));
             collisions = GetComponent<BoxCollider2D>();
             calculateRaySpacing();
@@ -209,41 +202,29 @@ namespace SevenSwords.CharacterCore
         }
 
         #region Movement Checks
-        public void checkMovement()
+        private float currentXSpeed;
+        public float _currentXSpeed { get { return currentXSpeed; } }
+        public void horizontalMove(float xVel)
         {
-            if (player.GetAxis("MoveHorizontal") != 0)
-            {
-                _stateMachine.ChangeState(new Walk(this));
-            }
+            currentXSpeed = xVel;
+            //check current state
+            if(!(_stateMachine.currentState is Walk)&&!(_stateMachine.currentState is Air))
+                _stateMachine.ChangeState(new Walk(this, _currentXSpeed));
         }
 
         public void checkIdle()
         {
-            if (player.GetAxis("MoveHorizontal") == 0 && player.GetAxis("MoveVertical") == 0)
-            {
+            if (!(_stateMachine.currentState is Idle)&&!(_stateMachine.currentState is Air))
                 _stateMachine.ChangeState(new Idle(this));
-            }
         }
 
-        public void checkJump()
+        public void Jump(float jumpPower)
         {
-            if (player.GetButtonDown("Jump"))
+            if (!(_stateMachine.currentState is Air))
             {
-                _moveVar.velocity.y = _moveVar.jumpPower;
+                _moveVar.velocity.y = jumpPower;
                 _stateMachine.ChangeState(new Air(this));
             }
-        }
-
-        public void checkGrounded()
-        {
-            RaycastHit2D hit = Physics2D.Raycast(transform.position, -Vector3.up, _moveVar.distToGround, floorMask);
-            if (hit.collider != null)
-            {
-                Debug.Log("Grounded");
-                _stateMachine.ChangeState(new Idle(this));
-            }
-            Debug.DrawRay(transform.position, -Vector3.up * _moveVar.distToGround, Color.red);
-
         }
 
         #endregion

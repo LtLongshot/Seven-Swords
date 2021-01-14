@@ -22,11 +22,13 @@ namespace SevenSwords.StateMchn
 			//gravity affecting
 			owner._moveVar.velocity.y = Mathf.Lerp(owner._moveVar.velocity.y, owner._moveVar.gravity, owner._moveVar.gravTime);
 
-			owner._moveVar.velocity.x = owner._moveVar.walkspeed * owner.player.GetAxis("MoveHorizontal");
 
-			if (owner.collisionInfo.below)
+			//TODO: Redo Air X Movement
+			owner._moveVar.velocity.x = owner._currentXSpeed;
+
+
+			if (owner.collisionInfo.below && owner._moveVar.velocity.y <=0)
 			{
-				Debug.Log("bing");
 				owner._moveVar.velocity.y = 0;
 				owner._stateMachine.ChangeState(new Idle(owner));
 			}
@@ -35,7 +37,7 @@ namespace SevenSwords.StateMchn
 
 		public void Exit()
 		{
-
+			//Debug.Log("YA");
 		}
 	}
 }
