@@ -19,12 +19,12 @@ namespace SevenSwords.StateMchn
 		public void Execute()
 		{
 			owner._moveVar.velocity.x = 0;
-			owner._moveVar.velocity.y = Mathf.Lerp(owner._moveVar.velocity.y, owner._moveVar.gravity, owner._moveVar.gravTime);
+			owner._moveVar.velocity.y += owner._moveVar.gravity*Time.deltaTime;
 		}
 
 		public void Exit()
 		{
-			Debug.Log("Ya");
+
 		}
 	}
 }

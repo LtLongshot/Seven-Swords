@@ -16,6 +16,8 @@ namespace SevenSwords.CharacterCore
         public float distToGround = 0.02f;
         public float gravTime = 0.1f;
 
+        public float jumpVel = 20;
+
         //General Movement
         public Vector3 velocity = new Vector3(0, 0, 0);
     }
@@ -212,17 +214,23 @@ namespace SevenSwords.CharacterCore
                 _stateMachine.ChangeState(new Walk(this, _currentXSpeed));
         }
 
+        public void setJumpValues(float jumpHeight, float jumpApexTime)
+        {
+            _moveVar.gravity = -(jumpHeight * 5) / Mathf.Pow(jumpApexTime, 2);
+            _moveVar.jumpVel = Mathf.Abs(_moveVar.gravity) * jumpApexTime;
+        }
+
         public void checkIdle()
         {
             if (!(_stateMachine.currentState is Idle)&&!(_stateMachine.currentState is Air))
                 _stateMachine.ChangeState(new Idle(this));
         }
 
-        public void Jump(float jumpPower)
+        public void Jump()
         {
             if (!(_stateMachine.currentState is Air))
             {
-                _moveVar.velocity.y = jumpPower;
+                _moveVar.velocity.y = _moveVar.jumpVel;
                 _stateMachine.ChangeState(new Air(this));
             }
         }
@@ -236,11 +244,13 @@ namespace SevenSwords.CharacterCore
 
         public GameObject stateDebug;
         public GameObject velocityDebug;
+        public GameObject gravityDebug;
 
         public void DebugTools()
         {
             stateDebug.GetComponent<TextMeshProUGUI>().SetText("Current State: " + _stateMachine.currentState);
             velocityDebug.GetComponent<TextMeshProUGUI>().SetText("Velocity: " + _moveVar.velocity);
+            gravityDebug.GetComponent<TextMeshProUGUI>().SetText("Gravity: " + _moveVar.gravity * Time.deltaTime);
 
         }
         #endregion

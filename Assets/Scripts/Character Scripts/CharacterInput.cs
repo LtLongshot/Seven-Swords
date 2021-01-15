@@ -10,6 +10,9 @@ namespace SevenSwords.Character{
         public float runspeed = 6;
         public float jumpPower = 20f;
 
+        public float jumpApexTime = 0.5f;
+        public float jumpHeights = 5f;
+
         private float currentSpeed;
 
         private CharController charController;
@@ -25,8 +28,10 @@ namespace SevenSwords.Character{
             charController = gameObject.GetComponent<CharController>();
             if(charController == null)
             {
-                Debug.Log("No Cahr controller dummy");
+                Debug.Log("No Char controller dummy");
             }
+
+            charController.setJumpValues(jumpHeights, jumpApexTime);
         }
 
         // Update is called once per frame
@@ -61,7 +66,7 @@ namespace SevenSwords.Character{
         {
             if (player.GetButtonDown("Jump"))
             {
-                charController.Jump(jumpPower);
+                charController.Jump();
             }
         }
     }

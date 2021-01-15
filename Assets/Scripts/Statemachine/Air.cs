@@ -20,14 +20,15 @@ namespace SevenSwords.StateMchn
 		public void Execute()
 		{
 			//gravity affecting
-			owner._moveVar.velocity.y = Mathf.Lerp(owner._moveVar.velocity.y, owner._moveVar.gravity, owner._moveVar.gravTime);
+			owner._moveVar.velocity.y += owner._moveVar.gravity * Time.deltaTime;
 
 
 			//TODO: Redo Air X Movement
 			owner._moveVar.velocity.x = owner._currentXSpeed;
 
 
-			if (owner.collisionInfo.below && owner._moveVar.velocity.y <=0)
+
+			if (owner.collisionInfo.below && owner._moveVar.velocity.y <= 0)
 			{
 				owner._moveVar.velocity.y = 0;
 				owner._stateMachine.ChangeState(new Idle(owner));
