@@ -237,6 +237,25 @@ namespace SevenSwords.CharacterCore
 
         #endregion
 
+        public enum BladeColour { white, green, red, blue };
+
+        public struct HitboxData
+        {
+            public float damage;
+            public float hitboxCreationTime;
+            public float hitboxLingeringTime; //Time from frame it is changed to so creation time + Lingering time
+            public Vector2 hitboxSize;
+            public BladeColour colour;
+        }
+
+        #region Player Specifics
+        public void PlayerBasicAttack(HitboxData hitbox)
+        {
+            _stateMachine.ChangeState(new PlayerAttack(this, hitbox));
+            _stateMachine.LockState(hitbox.hitboxLingeringTime);
+        }
+        #endregion
+
         #region Debug Tools
         /// <summary>
         /// DEBUG TOOLS AND VARIABLES FOR UI LINKING

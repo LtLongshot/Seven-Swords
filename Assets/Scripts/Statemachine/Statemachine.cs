@@ -13,24 +13,49 @@ namespace SevenSwords.CharacterCore
 		public IState currentState { get; private set; }
 		public IState previousState { get; private set; }
 
+		private bool stateLocked = false;
+		private float timeUnlock;
+
 
 		public void ChangeState(IState newState)
 		{
-			if (currentState != null)
+			if (!stateLocked)
 			{
-				previousState = currentState;
-				currentState.Exit();
+				if (currentState != null)
+				{
+					previousState = currentState;
+					currentState.Exit();
+				}
+
+				currentState = newState;
+
+				currentState.Enter();
 			}
-
-			currentState = newState;
-
-			currentState.Enter();
+			else
+			{
+				Debug.Log("Current State is locked");
+			}
 		}
 
 		public void Update()
 		{
 			if (currentState != null)
 				currentState.Execute();
+
+			if (stateLocked)
+			{
+				if(Time.time >= timeUnlock)
+				{
+					stateLocked = false;
+				}
+			}
+		}
+
+		//lock a state for a set period of time (Cannot be changed)
+		public void LockState(float time)
+		{
+			stateLocked = true;
+			timeUnlock = Time.time + time;
 		}
 	}
 

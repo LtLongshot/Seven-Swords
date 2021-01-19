@@ -1,8 +1,7 @@
 ﻿using UnityEngine;
 using Rewired;
-using SevenSwords.CharacterCore;
 
-namespace SevenSwords.Character{
+namespace SevenSwords.CharacterCore{
     public class CharacterInput : MonoBehaviour
     {
         //Ground Speed
@@ -32,6 +31,9 @@ namespace SevenSwords.Character{
             }
 
             charController.setJumpValues(jumpHeights, jumpApexTime);
+
+            HitboxSetup();
+
         }
 
         // Update is called once per frame
@@ -69,5 +71,26 @@ namespace SevenSwords.Character{
                 charController.Jump();
             }
         }
-    }
+
+        #region Player Attacks
+
+        private CharController.HitboxData basicAttack1;
+        void HitboxSetup()
+        {
+            basicAttack1.damage = 10f;
+            basicAttack1.hitboxCreationTime = 0.1f;
+            basicAttack1.hitboxLingeringTime = 0.2f;
+            basicAttack1.hitboxSize = new Vector2(0.5f, 0.2f);
+            basicAttack1.colour = CharController.BladeColour.white;
+        }
+
+		void PlayerBasicAttack()
+        {
+            if (player.GetButtonDown("BasicAttack"))
+            {
+                charController.PlayerBasicAttack(basicAttack1);
+            }
+        }
+		#endregion
+	}
 }
