@@ -9,8 +9,8 @@ namespace SevenSwords.CharacterCore{
         public float runspeed = 6;
         public float jumpPower = 20f;
 
-        public float jumpApexTime = 0.5f;
-        public float jumpHeights = 5f;
+        const float jumpApexTime = 0.3f;
+        const float jumpHeights = 1f;
 
         private float currentSpeed;
 
@@ -43,6 +43,7 @@ namespace SevenSwords.CharacterCore{
             CheckIdle();
             CheckHorizontalInput();
             CheckJump();
+            PlayerBasicAttack();
 
         }
 
@@ -80,8 +81,9 @@ namespace SevenSwords.CharacterCore{
             basicAttack1.damage = 10f;
             basicAttack1.hitboxCreationTime = 0.1f;
             basicAttack1.hitboxLingeringTime = 0.2f;
-            basicAttack1.hitboxSize = new Vector2(0.5f, 0.2f);
+            basicAttack1.hitboxSize = new Vector2(0.2f, 0.2f);
             basicAttack1.colour = CharController.BladeColour.white;
+            basicAttack1.hitstun = 1f;
         }
 
 		void PlayerBasicAttack()

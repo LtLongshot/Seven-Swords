@@ -32,6 +32,9 @@ namespace SevenSwords.CharacterCore
         //LayerMasks
         private int floorMask = 1 << 8;
 
+        public int enemyMask = 1 << 10;
+        private int playerMask = 1 << 9;
+
         private StateMachine stateMachine = new StateMachine();
         public StateMachine _stateMachine { get { return stateMachine; } }
 
@@ -246,6 +249,21 @@ namespace SevenSwords.CharacterCore
             public float hitboxLingeringTime; //Time from frame it is changed to so creation time + Lingering time
             public Vector2 hitboxSize;
             public BladeColour colour;
+            public float hitstun;
+        }
+
+        public GameObject HitboxCreationPoint;
+
+        Collider2D[] hitboxCollision;
+
+        public bool CheckHitbox()
+        {
+            if (hitboxCollision.Length > 0)
+            {
+                return true;
+            }
+            else
+                return false;
         }
 
         #region Player Specifics
@@ -253,6 +271,14 @@ namespace SevenSwords.CharacterCore
         {
             _stateMachine.ChangeState(new PlayerAttack(this, hitbox));
             _stateMachine.LockState(hitbox.hitboxLingeringTime);
+        }
+
+        public void CreatePlayerHitbox(HitboxData hitbox)
+        {
+            //this is a lil jank for garbage collection
+            //for right facing
+            //For some reason this is collecting everything not just enemy mask layer?
+            hitboxCollision = Physics2D.OverlapBoxAll(HitboxCreationPoint.transform.position + new Vector3(hitbox.hitboxSize.x / 2, 0, 0), hitbox.hitboxSize, 0, enemyMask);
         }
         #endregion
 
