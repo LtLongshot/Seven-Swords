@@ -29,15 +29,24 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Floats:
     - PixelSnap: 0
-    - _CellAmount: 6.2
+    - _CellAmount: 1
+    - _CellSize: 0.97
     - _EnableExternalAlpha: 0
-    - _Persistance: 0.732
+    - _Persistance: 0.775
     - _Pixelization: 64
+    - _RandV: 38.5
+    - _RandW: 16.78
+    - _RandX: 19.31
+    - _RandY: 20.64
+    - _RandZ: 20.86
+    - _RandomMulti: 1
+    - _RandomMultiY: 2.1
     - _Roughness: 3
     m_Colors:
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _Flip: {r: 1, g: 1, b: 1, a: 1}
-    - _MainColour: {r: 0.3510591, g: 0.3919098, b: 0.46226418, a: 1}
+    - _MainColour: {r: 0.23300104, g: 0.24290171, b: 0.26415092, a: 1}
     - _Period: {r: 4, g: 4, b: 0, a: 0}
     - _RendererColor: {r: 1, g: 1, b: 1, a: 1}
+    - _SubColour: {r: 0.26415092, g: 0.19130579, b: 0.1457814, a: 1}
   m_BuildTextureStacks: []

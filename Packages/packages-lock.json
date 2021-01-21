@@ -85,6 +85,13 @@
       "dependencies": {},
       "hash": "86c614734d88841793b2138bbb8b7d49df228d04"
     },
+    "jp.keijiro.noiseshader": {
+      "version": "1.0.0",
+      "depth": 0,
+      "source": "registry",
+      "dependencies": {},
+      "url": "https://registry.npmjs.com"
+    },
     "com.unity.modules.ai": {
       "version": "1.0.0",
       "depth": 0,
