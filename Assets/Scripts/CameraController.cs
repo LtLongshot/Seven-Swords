@@ -1,14 +1,37 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using SevenSwords.CharacterCore;
+using TMPro;
+
 
 public class CameraController : MonoBehaviour
 {
 
-    public GameObject cameraTarget;
+    private Vector3 cameraTarget = new Vector3(0,0,0);
+    public GameObject playerObject;
     private Camera playerCamera;
 
-    private float screenSkin = 30;  //this is the % for the screen skin
+    private float screenSkin = 0.4f;  //this is the % for the screen skin
+
+    const float slowLerp = 8f;
+    private Vector2 vertBounds; //These bounds are for the initial box
+    private Vector2 horzBounds;
+
+    public float velThreshold = 2.5f;
+
+    private float screenSkin2 = 0.10f;  //this is the % for the screen skin
+
+    const float fastLerp = 4f;
+
+    private float currentLerp = 1;
+
+    private Vector2 vertBounds2;
+    private Vector2 horzBounds2;
+
+    public GameObject CameraPosDebug;
+
+    private CharController charController;
 
     // Start is called before the first frame update
     void Start()
@@ -18,13 +41,72 @@ public class CameraController : MonoBehaviour
         {
             Debug.Log("No Camera component detected");
         }
-        
+
+        vertBounds = new Vector2(screenSkin, 1- screenSkin);
+        horzBounds = new Vector2(screenSkin, 1- screenSkin); 
+        vertBounds2 = new Vector2(screenSkin2, 1- screenSkin2);
+        horzBounds2 = new Vector2(screenSkin2, 1- screenSkin2);
+
+        cameraTarget = playerCamera.WorldToViewportPoint(playerObject.transform.position);
+        cameraTarget.z = 0;
+
+        charController = playerObject.GetComponent<CharController>();
     }
 
     // Update is called once per frame
-    void Update()
+    void LateUpdate()
+    { 
+        if (Mathf.Abs(charController._moveVar.velocity.x) < velThreshold)
+        {
+
+            if (playerCamera.WorldToViewportPoint(playerObject.transform.position).x < horzBounds.x || playerCamera.WorldToViewportPoint(playerObject.transform.position).x > horzBounds.y)
+            {
+                currentLerp = (1f - Mathf.Abs(playerCamera.WorldToViewportPoint(playerObject.transform.position).x - 0.5f))/slowLerp;
+                cameraTarget = playerCamera.WorldToViewportPoint(playerObject.transform.position);
+                cameraTarget.z = 0;
+                //currentLerp = 0.1f;
+            }
+            else
+            {
+                currentLerp = (1f - Mathf.Abs(playerCamera.WorldToViewportPoint(playerObject.transform.position).x - 0.5f))/slowLerp;
+                //if camera is at the target set to default
+                if (transform.position.x <= playerCamera.ViewportToWorldPoint(cameraTarget).x +0.05 || transform.position.x >= playerCamera.ViewportToWorldPoint(cameraTarget).x + 0.05)
+                {
+                    cameraTarget = new Vector3(0.5f, 0.5f, 0);
+                }
+            }
+        }
+        else
+        {
+            if (charController._moveVar.velocity.x > 0) //moving right
+            {
+                cameraTarget = playerCamera.WorldToViewportPoint(playerObject.transform.position);
+                cameraTarget.x = cameraTarget.x + (0.5f - horzBounds2.x);
+                cameraTarget.z = 0;
+                currentLerp = (1f - Mathf.Abs(playerCamera.WorldToViewportPoint(playerObject.transform.position).x-0.5f))/fastLerp;
+            }else if(charController._moveVar.velocity.x < 0) //moving left
+            {
+                cameraTarget = playerCamera.WorldToViewportPoint(playerObject.transform.position);
+                cameraTarget.x = cameraTarget.x - (0.5f - horzBounds2.x);
+                cameraTarget.z = 0;
+
+                currentLerp = (1f - Mathf.Abs(playerCamera.WorldToViewportPoint(playerObject.transform.position).x - 0.5f))/fastLerp;
+
+            }
+        }
+        //transform.position = playerCamera.ViewportToWorldPoint(cameraTarget);
+        updatePosition(cameraTarget);
+
+        //Target Debug
+        CameraPosDebug.GetComponent<TextMeshProUGUI>().SetText("Cam Target Pos: " + cameraTarget);
+    }
+
+    public void updatePosition(Vector3 position)
     {
-        
+        float vel = 3;
+
+        //transform.position = playerCamera.ViewportToWorldPoint(cameraTarget);
+        transform.position = new Vector3(Mathf.SmoothStep(transform.position.x, playerCamera.ViewportToWorldPoint(cameraTarget).x, currentLerp),transform.position.y, transform.position.z); 
     }
 
     bool screenDetection()

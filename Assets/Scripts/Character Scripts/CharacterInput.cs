@@ -5,7 +5,8 @@ namespace SevenSwords.CharacterCore{
     public class CharacterInput : MonoBehaviour
     {
         //Ground Speed
-        public float walkspeed = 3f;
+        public float slowWalkSpeed = 2f;
+        public float walkspeed = 5f;
         public float runspeed = 6;
         public float jumpPower = 20f;
 
@@ -51,8 +52,16 @@ namespace SevenSwords.CharacterCore{
         {
             if (player.GetAxis("MoveHorizontal") != 0)
             {
-                currentSpeed = player.GetAxis("MoveHorizontal") * walkspeed;
-                charController.horizontalMove(currentSpeed);
+                if (!player.GetButton("WalkMod"))
+                {
+                    currentSpeed = player.GetAxis("MoveHorizontal") * slowWalkSpeed;
+                    charController.horizontalMove(currentSpeed);
+                }
+                else
+                {
+                    currentSpeed = player.GetAxis("MoveHorizontal") * walkspeed;
+                    charController.horizontalMove(currentSpeed);
+                }
             }
         }
 
