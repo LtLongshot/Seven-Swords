@@ -15,6 +15,7 @@ namespace SevenSwords.StateMchn
 		public void Enter()
 		{
 			//change animation
+
 		}
 
 		public void Execute()

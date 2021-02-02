@@ -18,6 +18,9 @@ namespace SevenSwords.CharacterCore
 
         public float jumpVel = 20;
 
+        public float maxClimbAngle = 70;
+        public float maxDecendAngle = 70;
+
         //General Movement
         public Vector3 velocity = new Vector3(0, 0, 0);
     }
@@ -90,6 +93,11 @@ namespace SevenSwords.CharacterCore
                     velocity.y = (((hit.distance - skinWidth) * directionY) * 20);
                     rayLength = hit.distance;
 
+                    if (collisionInfo.climbingSlope)
+                    {
+                        velocity.x = velocity.y / Mathf.Tan(collisionInfo.slopeAngle * Mathf.Deg2Rad) * Mathf.Sign(velocity.x);
+                    }
+
                     //cleaner collision range for checks
                     if (rayLength <= 0.02f)
                     {
@@ -104,6 +112,26 @@ namespace SevenSwords.CharacterCore
 
                 }
             }
+
+            //multi slope check
+            if (collisionInfo.climbingSlope)
+            {
+                float directionX = Mathf.Sign(velocity.x);
+                rayLength = (Mathf.Abs(velocity.x) + skinWidth)/20;
+                Vector2 rayOrigin = ((directionX == -1) ? raycastOrigins.bottomLeft : raycastOrigins.bottomRight) + Vector2.up * velocity.y;
+                RaycastHit2D hit = Physics2D.Raycast(rayOrigin, Vector2.right * directionX, rayLength, floorMask);
+                
+                if (hit)
+                {
+                    float slopeAngle = Vector2.Angle(hit.normal, Vector2.up);
+                    if(slopeAngle != collisionInfo.slopeAngle)
+                    {
+                        velocity.x = (hit.distance - skinWidth * directionX);
+                        collisionInfo.slopeAngle = slopeAngle;
+                    }
+                }
+            }
+
             //GROUND CHECK
             if (groundedCheck == verticalRayCount)
                 _stateMachine.ChangeState(new Air(this));
@@ -126,14 +154,36 @@ namespace SevenSwords.CharacterCore
 
                 if (hit)
                 {
-                    velocity.x = (hit.distance - skinWidth) * directionX * 20;
-                    rayLength = hit.distance;
-
-                    //cleaner collision range for checks
-                    if (rayLength <= 0.01f)
+                    float slopeAngle = Vector2.Angle(hit.normal, Vector2.up); //Slope movement
+                    if (i == 0 && slopeAngle <= _moveVar.maxClimbAngle)
                     {
-                        collisionInfo.left = directionX == -1;
-                        collisionInfo.right = directionX == 1;
+                        float distToSlopeStart = 0;
+                        if(slopeAngle != collisionInfo.slopeAngleOld)
+                        {
+                            distToSlopeStart = hit.distance - skinWidth;
+                            velocity.x -= distToSlopeStart * directionX;
+                        }
+                        ClimbSlope(ref velocity, slopeAngle);
+                        //velocity.x += distToSlopeStart * directionX;
+                    }
+
+                    if (!collisionInfo.climbingSlope || slopeAngle > _moveVar.maxClimbAngle)
+                    {
+                        velocity.x = (hit.distance - skinWidth) * directionX;
+                        rayLength = hit.distance;
+
+                        //vertical collision whist climbing slope
+                        if (collisionInfo.climbingSlope)
+                        {
+                            velocity.y = Mathf.Tan(collisionInfo.slopeAngle * Mathf.Deg2Rad) * Mathf.Abs(velocity.x);
+                        }
+
+                        //cleaner collision range for checks
+                        if (rayLength <= 0.01f)
+                        {
+                            collisionInfo.left = directionX == -1;
+                            collisionInfo.right = directionX == 1;
+                        }
                     }
                 }
             }
@@ -145,10 +195,21 @@ namespace SevenSwords.CharacterCore
             public bool above, below;
             public bool left, right;
 
+            public bool climbingSlope;
+            public float slopeAngle, slopeAngleOld;
+
+            public bool descendingSlope;
             public void Reset()
             {
                 above = below = false;
                 left = right = false;
+                climbingSlope = false;
+
+                descendingSlope = false;
+
+                slopeAngleOld = slopeAngle;
+
+                slopeAngle = 0;
             }
         }
 
@@ -189,16 +250,14 @@ namespace SevenSwords.CharacterCore
             DebugTools();
         }
 
-        // Update is called once per frame
-        void FixedUpdate()
-        {
-
-        }
-
         void resolveMovement()
         {
             updateRaycastOrigins();
             collisionInfo.Reset();
+            if(_moveVar.velocity.y < 0)
+            {
+                DescendSlope(ref _moveVar.velocity);
+            }
             if (_moveVar.velocity.y != 0)
                 verticalCollisions(ref _moveVar.velocity);
             if (_moveVar.velocity.x != 0)
@@ -213,7 +272,7 @@ namespace SevenSwords.CharacterCore
         {
             currentXSpeed = xVel;
             //check current state
-            if(!(_stateMachine.currentState is Walk)&&!(_stateMachine.currentState is Air))
+            if(!(_stateMachine.currentState is Walk)&&!(_stateMachine.currentState is Air)&&!(_stateMachine.currentState is ClimbSlope))
                 _stateMachine.ChangeState(new Walk(this, _currentXSpeed));
         }
 
@@ -236,6 +295,52 @@ namespace SevenSwords.CharacterCore
                 _moveVar.velocity.y = _moveVar.jumpVel;
                 _stateMachine.ChangeState(new Air(this));
             }
+        }
+
+        private void ClimbSlope(ref Vector3 velocity, float slopeAngle)
+        {
+            _stateMachine.ChangeState(new ClimbSlope(this));
+            float moveDistance = Mathf.Abs(velocity.x);
+            float climbVelocityY= Mathf.Sin(slopeAngle * Mathf.Deg2Rad) * moveDistance;
+            //slope jump check
+            if (velocity.y <= climbVelocityY){
+                velocity.y = climbVelocityY;
+                velocity.x = Mathf.Cos(slopeAngle * Mathf.Deg2Rad) * moveDistance * Mathf.Sign(velocity.x);
+                collisionInfo.below = true;
+                collisionInfo.climbingSlope = true;
+                collisionInfo.slopeAngle = slopeAngle;
+            }
+        }
+
+        private void DescendSlope(ref Vector3 velocity)
+        {
+            float directionX = Mathf.Sign(velocity.x);
+            Vector2 rayOrigin = (directionX == -1) ? raycastOrigins.bottomRight : raycastOrigins.bottomLeft;
+            RaycastHit2D hit = Physics2D.Raycast(rayOrigin, -Vector2.up, Mathf.Infinity, floorMask);
+
+            if (hit)
+            {
+                float slopeAngle = Vector2.Angle(hit.normal, Vector2.up);
+                if(slopeAngle !=0 && slopeAngle <= _moveVar.maxDecendAngle)
+                {
+                    if(Mathf.Sign(hit.normal.x) == directionX)
+                    {
+                        if ((hit.distance - skinWidth) / 20 <= (Mathf.Tan(slopeAngle * Mathf.Deg2Rad) * Mathf.Abs(velocity.x))/200 ){
+                            float moveDistance = Mathf.Abs(velocity.x);
+                            float decVelocityY = Mathf.Sin(slopeAngle * Mathf.Deg2Rad) * moveDistance;
+                            velocity.x = Mathf.Cos(slopeAngle * Mathf.Deg2Rad) * moveDistance * Mathf.Sign(velocity.x);
+                            velocity.y -= decVelocityY;
+
+                            collisionInfo.slopeAngle = slopeAngle;
+                            collisionInfo.descendingSlope = true;
+                            collisionInfo.below = true;
+
+                            Debug.Log("Descending");
+                        }
+                    }
+                }
+            }
+
         }
 
         #endregion

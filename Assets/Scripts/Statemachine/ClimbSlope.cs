@@ -1,18 +1,19 @@
-﻿using UnityEngine;
+﻿using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
 using SevenSwords.CharacterCore;
+
 namespace SevenSwords.StateMchn
 {
-	public class Walk : IState
+	public class ClimbSlope : IState
 	{
 		CharController owner;
-		float xVel;
 
-		public Walk(CharController owner, float xVel) { this.owner = owner; this.xVel = xVel; }
+		public ClimbSlope(CharController owner) { this.owner = owner; }
 
 		public void Enter()
 		{
-			//change animation
-			Debug.Log("Air");
+
 		}
 
 		public void Execute()
@@ -20,10 +21,10 @@ namespace SevenSwords.StateMchn
 			owner._moveVar.velocity.x = owner._currentXSpeed;
 			owner._moveVar.velocity.y += owner._moveVar.gravity * Time.deltaTime;
 		}
-
 		public void Exit()
 		{
 
 		}
+
 	}
 }
