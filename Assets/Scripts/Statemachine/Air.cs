@@ -22,8 +22,6 @@ namespace SevenSwords.StateMchn
 		{
 			//gravity affecting
 			owner._moveVar.velocity.y += owner._moveVar.gravity * Time.deltaTime;
-
-
 			//TODO: Redo Air X Movement
 			owner._moveVar.velocity.x = owner._currentXSpeed;
 

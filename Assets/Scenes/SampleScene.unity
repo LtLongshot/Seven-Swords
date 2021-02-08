@@ -1474,13 +1474,13 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1440761739}
-  m_LocalRotation: {x: -0.017672362, y: 0.019573644, z: -0.3165229, w: 0.9482182}
+  m_LocalRotation: {x: -0.010657952, y: 0.024121536, z: -0.5974063, w: 0.8015049}
   m_LocalPosition: {x: -4.32, y: 1.15, z: 0}
   m_LocalScale: {x: 1.95, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 691855442}
   m_RootOrder: 10
-  m_LocalEulerAnglesHint: {x: -1.21, y: 2.77, z: -36.948}
+  m_LocalEulerAnglesHint: {x: 0.672, y: 2.947, z: -73.381}
 --- !u!61 &1440761741
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -1703,6 +1703,9 @@ GameObject:
   - component: {fileID: 1584037004}
   - component: {fileID: 1584037003}
   - component: {fileID: 1584037002}
+  - component: {fileID: 1584037005}
+  - component: {fileID: 1584037006}
+  - component: {fileID: 1584037007}
   m_Layer: 10
   m_Name: trainingdummy
   m_TagString: Enemy
@@ -1795,12 +1798,59 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1584037001}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -2.29, y: 2.73, z: 0}
+  m_LocalPosition: {x: 0.79, y: 0.057, z: 0.11}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 6
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1584037005
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1584037001}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3470a343bc7a1164e8298029967bae38, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  enemyMask: 1024
+  horizontalRayCount: 4
+  verticalRayCount: 4
+  HitboxCreationPoint: {fileID: 0}
+  stateDebug: {fileID: 0}
+  velocityDebug: {fileID: 0}
+  gravityDebug: {fileID: 0}
+--- !u!114 &1584037006
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1584037001}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 333a049e07cc3d74a889fa43d1854934, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  slowWalkSpeed: 2
+  walkspeed: 5
+  runspeed: 6
+  jumpPower: 20
+--- !u!114 &1584037007
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1584037001}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5e2e9fb84c4ea74c915593e8733f518, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1755477947
 GameObject:
   m_ObjectHideFlags: 0
@@ -3074,9 +3124,13 @@ PrefabInstance:
       propertyPath: enemyMask.m_Bits
       value: 1024
       objectReference: {fileID: 0}
+    - target: {fileID: 5692798590949303500, guid: e8b775d78e254504381d5f7f0e04fb34, type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 5692798590949303501, guid: e8b775d78e254504381d5f7f0e04fb34, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 1.13
+      value: -0.47
       objectReference: {fileID: 0}
     - target: {fileID: 5692798590949303501, guid: e8b775d78e254504381d5f7f0e04fb34, type: 3}
       propertyPath: m_LocalPosition.y
@@ -3117,6 +3171,14 @@ PrefabInstance:
     - target: {fileID: 5692798590949303501, guid: e8b775d78e254504381d5f7f0e04fb34, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5692798590949303502, guid: e8b775d78e254504381d5f7f0e04fb34, type: 3}
+      propertyPath: walkspeed
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 5692798590949303502, guid: e8b775d78e254504381d5f7f0e04fb34, type: 3}
+      propertyPath: m_Enabled
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: e8b775d78e254504381d5f7f0e04fb34, type: 3}

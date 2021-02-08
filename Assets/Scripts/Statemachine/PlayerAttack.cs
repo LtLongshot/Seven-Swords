@@ -15,6 +15,7 @@ namespace SevenSwords.StateMchn
 		private float hitboxActiveTime;
 		private bool hitboxCreated;
 		private bool hitboxCreatedThisFrame;
+		private bool enemyHit;
 
 		public void Enter()
 		{
@@ -22,6 +23,7 @@ namespace SevenSwords.StateMchn
 
 			hitboxCreationTime = hitboxData.hitboxCreationTime + Time.time;
 			hitboxActiveTime = hitboxData.hitboxLingeringTime + Time.time;
+			enemyHit = false;
 		}
 
 		public void Execute()
@@ -34,31 +36,41 @@ namespace SevenSwords.StateMchn
 			if (!hitboxCreated && Time.time >= hitboxCreationTime)
 			{
 				//hitbox creation
-				owner.CreatePlayerHitbox(hitboxData);
+				Collider2D[] collisions = owner.CreatePlayerHitbox(hitboxData);
 				hitboxCreated = true;
 				hitboxCreatedThisFrame = true;
-				if (owner.CheckHitbox())
+				if (collisions.Length > 0)
 				{
-					//on initial frame hit
-					Debug.Log("Hit Enemy");
+					foreach (Collider2D hit in collisions)
+					{
+						hit.GetComponent<Enemy>().getHit(hitboxData.damage, hitboxData.hitstun, hitboxData.colour);
+					}
+					enemyHit = true;
+					Debug.Log("initial");
 				}
 			}
-			else if (hitboxCreated && !owner.CheckHitbox() && Time.time < hitboxActiveTime)
+			else if (hitboxCreated && Time.time < hitboxActiveTime && !hitboxCreatedThisFrame && !enemyHit)
 			{
 				//still looking for hitbox
-				owner.CreatePlayerHitbox(hitboxData);
-				if (owner.CheckHitbox())
+				Collider2D[] collisions = owner.CreatePlayerHitbox(hitboxData);
+				if (collisions.Length > 0)
 				{
-					//hitbox found
-					Debug.Log("Hit Enemy2");
+					foreach (Collider2D hit in collisions)
+					{
+						hit.GetComponent<Enemy>().getHit(hitboxData.damage, hitboxData.hitstun, hitboxData.colour);
+					}
+					enemyHit = true;
+					Debug.Log("F/U");
 				}
 			}
-			else if (hitboxCreated && !owner.CheckHitbox() && Time.time >= hitboxActiveTime)
+			else if (hitboxCreated && Time.time >= hitboxActiveTime && !enemyHit)
 			{
 				//wiffed
-				Debug.Log("Wiffed");
 				owner._stateMachine.ChangeState(new Idle(owner));
+				Debug.Log("wiffed");
 			}
+
+			hitboxCreatedThisFrame = false;
 		}
 
 

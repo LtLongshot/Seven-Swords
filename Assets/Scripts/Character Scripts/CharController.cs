@@ -23,15 +23,15 @@ namespace SevenSwords.CharacterCore
 
         //General Movement
         public Vector3 velocity = new Vector3(0, 0, 0);
+
+        public bool isRight = true;
+
+        public Vector3 hitboxCreationPos = new Vector3(0.16f,0,0);
+        public Vector3 hitboxCreationNeg = new Vector3(-0.16f, 0, 0);
     }
 
     public class CharController : MonoBehaviour
     {
-        //Player controller init
-        //later move to character input system to organise buffering
-        public int playerID = 0;
-        public Rewired.Player player { get { return ReInput.isReady ? ReInput.players.GetPlayer(playerID) : null; } }
-
         //LayerMasks
         private int floorMask = 1 << 8;
 
@@ -262,6 +262,7 @@ namespace SevenSwords.CharacterCore
                 verticalCollisions(ref _moveVar.velocity);
             if (_moveVar.velocity.x != 0)
                 horizontalCollisions(ref _moveVar.velocity);
+            IsRight();
             transform.Translate(_moveVar.velocity * Time.deltaTime, Space.World);
         }
 
@@ -295,6 +296,14 @@ namespace SevenSwords.CharacterCore
                 _moveVar.velocity.y = _moveVar.jumpVel;
                 _stateMachine.ChangeState(new Air(this));
             }
+        }
+
+        void IsRight()
+        {
+            if (_moveVar.velocity.x > 0)
+                _moveVar.isRight = true;
+            else if (_moveVar.velocity.x < 0)
+                _moveVar.isRight = false;
         }
 
         private void ClimbSlope(ref Vector3 velocity, float slopeAngle)
@@ -334,8 +343,6 @@ namespace SevenSwords.CharacterCore
                             collisionInfo.slopeAngle = slopeAngle;
                             collisionInfo.descendingSlope = true;
                             collisionInfo.below = true;
-
-                            Debug.Log("Descending");
                         }
                     }
                 }
@@ -359,31 +366,24 @@ namespace SevenSwords.CharacterCore
 
         public GameObject HitboxCreationPoint;
 
-        Collider2D[] hitboxCollision;
-
-        public bool CheckHitbox()
-        {
-            if (hitboxCollision.Length > 0)
-            {
-                return true;
-            }
-            else
-                return false;
-        }
-
         #region Player Specifics
         public void PlayerBasicAttack(HitboxData hitbox)
         {
-            _stateMachine.ChangeState(new PlayerAttack(this, hitbox));
-            _stateMachine.LockState(hitbox.hitboxLingeringTime);
+            if (!(_stateMachine.currentState is PlayerAttack))
+            {
+                _stateMachine.ChangeState(new PlayerAttack(this, hitbox));
+                _stateMachine.LockState(hitbox.hitboxLingeringTime);
+            }
         }
 
-        public void CreatePlayerHitbox(HitboxData hitbox)
+        public Collider2D[] CreatePlayerHitbox(HitboxData hitbox)
         {
             //this is a lil jank for garbage collection
-            //for right facing
-            //For some reason this is collecting everything not just enemy mask layer?
-            hitboxCollision = Physics2D.OverlapBoxAll(HitboxCreationPoint.transform.position + new Vector3(hitbox.hitboxSize.x / 2, 0, 0), hitbox.hitboxSize, 0, enemyMask);
+            //for right facing only ATM
+            if(_moveVar.isRight)
+                return Physics2D.OverlapBoxAll(transform.position + (_moveVar.hitboxCreationPos + new Vector3(hitbox.hitboxSize.x / 2, 0, 0)), hitbox.hitboxSize, 0, enemyMask);
+            else
+                return Physics2D.OverlapBoxAll(transform.position + (_moveVar.hitboxCreationNeg - new Vector3(hitbox.hitboxSize.x / 2, 0, 0)), hitbox.hitboxSize, 0, enemyMask);
         }
         #endregion
 
@@ -398,8 +398,11 @@ namespace SevenSwords.CharacterCore
 
         public void DebugTools()
         {
+            if(stateDebug != null)
             stateDebug.GetComponent<TextMeshProUGUI>().SetText("Current State: " + _stateMachine.currentState);
+            if(velocityDebug != null)
             velocityDebug.GetComponent<TextMeshProUGUI>().SetText("Velocity: " + _moveVar.velocity);
+            if(velocityDebug != null)
             gravityDebug.GetComponent<TextMeshProUGUI>().SetText("Gravity: " + _moveVar.gravity * Time.deltaTime);
 
         }
