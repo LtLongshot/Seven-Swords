@@ -46,7 +46,6 @@ namespace SevenSwords.StateMchn
 						hit.GetComponent<Enemy>().getHit(hitboxData.damage, hitboxData.hitstun, hitboxData.colour);
 					}
 					enemyHit = true;
-					Debug.Log("initial");
 				}
 			}
 			else if (hitboxCreated && Time.time < hitboxActiveTime && !hitboxCreatedThisFrame && !enemyHit)
@@ -60,14 +59,12 @@ namespace SevenSwords.StateMchn
 						hit.GetComponent<Enemy>().getHit(hitboxData.damage, hitboxData.hitstun, hitboxData.colour);
 					}
 					enemyHit = true;
-					Debug.Log("F/U");
 				}
 			}
 			else if (hitboxCreated && Time.time >= hitboxActiveTime && !enemyHit)
 			{
 				//wiffed
 				owner._stateMachine.ChangeState(new Idle(owner));
-				Debug.Log("wiffed");
 			}
 
 			hitboxCreatedThisFrame = false;

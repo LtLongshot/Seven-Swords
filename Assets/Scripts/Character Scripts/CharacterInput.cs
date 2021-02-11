@@ -8,10 +8,9 @@ namespace SevenSwords.CharacterCore{
         public float slowWalkSpeed = 2f;
         public float walkspeed = 5f;
         public float runspeed = 6;
-        public float jumpPower = 20f;
 
         const float jumpApexTime = 0.3f;
-        const float jumpHeights = 1f;
+        const float jumpHeights = 0.5f;
 
         private float currentSpeed;
 
@@ -23,7 +22,7 @@ namespace SevenSwords.CharacterCore{
         void Start()
         {
             //put this here for now needs to go into startup
-            Application.targetFrameRate = 60;
+            //Application.targetFrameRate = 60;
 
             charController = gameObject.GetComponent<CharController>();
             if(charController == null)

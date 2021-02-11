@@ -31,10 +31,6 @@ namespace SevenSwords.CharacterCore
 
 				currentState.Enter();
 			}
-			else
-			{
-				Debug.Log("Current State is locked");
-			}
 		}
 
 		public void Update()

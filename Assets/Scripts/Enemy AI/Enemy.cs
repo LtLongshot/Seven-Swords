@@ -32,13 +32,13 @@ public class Enemy : MonoBehaviour
         if (currentWeakness == CharController.BladeColour.white && bladeColour == CharController.BladeColour.white)
         {
             health -= damage;
-            Debug.Log("oof");
+            //Debug.Log("oof");
         }
         //if colour is correct destroy weakness
         else if (currentWeakness == bladeColour && bladeColour != CharController.BladeColour.white)
         {
             currentWeakness = CharController.BladeColour.white;
-            Debug.Log("Broken");
+            //Debug.Log("Broken");
 
         }
 
