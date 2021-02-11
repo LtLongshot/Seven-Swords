@@ -18,7 +18,7 @@ namespace SevenSwords.CharacterCore
         public float maxDecendAngle = 70;
 
         //General Movement
-        public Vector3 velocity = new Vector3(1, -9, 0);
+        public Vector3 velocity = new Vector3(3, -3, 0);
 
         public bool isRight = true;
 
@@ -45,26 +45,35 @@ namespace SevenSwords.CharacterCore
         private void FixedUpdate()
         {
             //Collision Sim
-            collisionInfo.Reset();
             updateRaycastOrigins();
+            collisionInfo.Reset();
+            //physics
+            if (collisionInfo.grounded || collisionInfo.ceiling)
+                _charVariables.velocity.y = 0;
+            else
+                _charVariables.velocity.y = -9.8f;
+
+            if (collisionInfo.wall)
+            {
+                _charVariables.velocity.x = 0;
+                Debug.Log("Wall");
+            }
+            else
+            {
+                _charVariables.velocity.x = 3f;
+                Debug.Log("No Wall");
+            }
+
+            //if (_charVariables.velocity.y !=0)
             verticalCollisions(ref _charVariables.velocity);
             horizontalCollisions(ref _charVariables.velocity);
-
-            if (collisionInfo.below)
-            {
-                Debug.Log("Below");
-            }
-            else if (collisionInfo.above)
-            {
-                Debug.Log("Above");
-            }
         }
         void Update()
         {
-            
             //input and state mchn
-            Debug.Log(_charVariables.velocity);
             //Resolve movement
+
+            resolveMovement();
         }
 
         #region Collisions
@@ -93,6 +102,8 @@ namespace SevenSwords.CharacterCore
             public bool grounded;
             public bool ceiling;
 
+            public bool wall;
+
             public bool descendingSlope;
             public void Reset()
             {
@@ -114,7 +125,7 @@ namespace SevenSwords.CharacterCore
         void updateRaycastOrigins()
         {
             Bounds bounds = collisions.bounds;
-            bounds.Expand(skinWidth * -1);
+            bounds.Expand(skinWidth * -2);
 
             raycastOrigins.bottomLeft = new Vector2(bounds.min.x, bounds.min.y);
             raycastOrigins.bottomRight = new Vector2(bounds.max.x, bounds.min.y);
@@ -126,7 +137,7 @@ namespace SevenSwords.CharacterCore
         void calculateRaySpacing()
         {
             Bounds bounds = collisions.bounds;
-            bounds.Expand(skinWidth * -1);
+            bounds.Expand(skinWidth * -2);
 
             horizontalRayCount = Mathf.Clamp(horizontalRayCount, 2, int.MaxValue);
             verticalRayCount = Mathf.Clamp(verticalRayCount, 2, int.MaxValue);
@@ -154,16 +165,15 @@ namespace SevenSwords.CharacterCore
 
                     collisionInfo.below = directionY == -1;
                     collisionInfo.above = directionY == 1;
-
+                    velocity.y = (hit.distance - skinWidth) * directionY;
                     //detect grounded
-                    if (collisionInfo.below && rayLength <= skinWidth + 0.1) //Skinwidth + buffer
+                    if (collisionInfo.below && rayLength <= skinWidth + 0.001) //Skinwidth + buffer
                     {
                         collisionInfo.grounded = true;
-                        collisionInfo.ceiling = false;
                         //grounded
                         Debug.Log("Grounded");
                     }
-                    else if(collisionInfo.above && rayLength <= skinWidth + 0.1)
+                    else if(collisionInfo.above && rayLength <= skinWidth + 0.001)
                     {
                         collisionInfo.ceiling = true;
                         Debug.Log("Celing");
@@ -172,8 +182,6 @@ namespace SevenSwords.CharacterCore
                     {
                         collisionInfo.grounded = false;
                         collisionInfo.ceiling = false;
-                        //manual override of vel to smoothen decent
-                        velocity.y = (hit.distance - skinWidth) * directionY;
                     }
 
                 }
@@ -204,11 +212,33 @@ namespace SevenSwords.CharacterCore
                     rayLength = hit.distance;
                     collisionInfo.left = directionX == -1;
                     collisionInfo.right = directionX == 1;
-                    velocity.x = (hit.distance - skinWidth) * directionX;
+                    velocity.x = (hit.distance - skinWidth) * directionX * 5;
+                    if (rayLength <= skinWidth + 0.001)
+                    {
+                        collisionInfo.wall = true;
+                    }
+                    else
+                    {
+                        collisionInfo.wall = false;
+                    }
+                }
+                else
+                {
+                    collisionInfo.wall = false;
                 }
             }
         }
 
         #endregion
-    }
+
+        #region Movement
+
+        void resolveMovement()
+        {
+            //if(collisionInfo.left || collisionInfo.right)
+            //    _charVariables.velocity.x = 0;
+            transform.Translate(_charVariables.velocity * Time.deltaTime, Space.World);
+        }
+		#endregion
+	}
 }
