@@ -41,7 +41,8 @@ namespace SevenSwords.CharacterCore
             calculateRaySpacing();
         }
         // Update is called once per frame
-        void Update()
+
+        private void FixedUpdate()
         {
             //Collision Sim
             collisionInfo.Reset();
@@ -52,10 +53,15 @@ namespace SevenSwords.CharacterCore
             if (collisionInfo.below)
             {
                 Debug.Log("Below");
-            }else if (collisionInfo.above)
+            }
+            else if (collisionInfo.above)
             {
                 Debug.Log("Above");
             }
+        }
+        void Update()
+        {
+            
             //input and state mchn
             Debug.Log(_charVariables.velocity);
             //Resolve movement
