@@ -4,20 +4,23 @@ namespace SevenSwords.StateMchn
 {
 	public class Walk : IState
 	{
-		CharController owner;
+		NewCharController owner;
 		float xVel;
 
-		public Walk(CharController owner, float xVel) { this.owner = owner; this.xVel = xVel; }
+		public Walk(NewCharController owner, float xVel) { this.owner = owner; this.xVel = xVel; }
 
 		public void Enter()
 		{
 			//change animation
+			Debug.Log("walk");
 		}
 
 		public void Execute()
 		{
-			owner._moveVar.velocity.x = owner._currentXSpeed;
-			owner._moveVar.velocity.y += owner._moveVar.gravity * Time.deltaTime;
+			owner._charVariables.velocity.x = owner._currentXSpeed;
+
+			if(!owner.collisionInfo.grounded)
+				owner._charVariables.velocity.y = owner._charVariables.gravity;
 		}
 
 		public void Exit()

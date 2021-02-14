@@ -14,11 +14,13 @@ namespace SevenSwords.CharacterCore
 
         public float jumpVel = 20;
 
+        public float gravity = -9.8f;
+
         public float maxClimbAngle = 70;
         public float maxDecendAngle = 70;
 
         //General Movement
-        public Vector3 velocity = new Vector3(3, -3, 0);
+        public Vector3 velocity = new Vector3(0, 0, 0);
 
         public bool isRight = true;
 
@@ -47,33 +49,21 @@ namespace SevenSwords.CharacterCore
             //Collision Sim
             updateRaycastOrigins();
             collisionInfo.Reset();
-            //physics
-            if (collisionInfo.grounded || collisionInfo.ceiling)
-                _charVariables.velocity.y = 0;
-            else
-                _charVariables.velocity.y = -9.8f;
 
-            if (collisionInfo.wall)
-            {
-                _charVariables.velocity.x = 0;
-                Debug.Log("Wall");
-            }
-            else
-            {
-                _charVariables.velocity.x = 3f;
-                Debug.Log("No Wall");
-            }
+            //inputs and state mchn
+            _stateMachine.Update();
 
             //if (_charVariables.velocity.y !=0)
             verticalCollisions(ref _charVariables.velocity);
+            if(_charVariables.velocity.x != 0)
             horizontalCollisions(ref _charVariables.velocity);
+
+            resolveMovement();
         }
         void Update()
         {
-            //input and state mchn
-            //Resolve movement
 
-            resolveMovement();
+            
         }
 
         #region Collisions
@@ -105,6 +95,8 @@ namespace SevenSwords.CharacterCore
             public bool wall;
 
             public bool descendingSlope;
+
+            public float distToWall;
             public void Reset()
             {
                 above = below = false;
@@ -116,6 +108,8 @@ namespace SevenSwords.CharacterCore
                 slopeAngleOld = slopeAngle;
 
                 slopeAngle = 0;
+
+                distToWall = 10;//make it max speed
             }
         }
 
@@ -149,7 +143,7 @@ namespace SevenSwords.CharacterCore
         void verticalCollisions(ref Vector3 velocity)
         {
             float directionY = Mathf.Sign(velocity.y);
-            float rayLength = Mathf.Abs((velocity.y) + skinWidth)/5;
+            float rayLength = Mathf.Abs((velocity.y) + skinWidth)/10;
 
             for (int i=0; i < verticalRayCount; i++)
             {
@@ -165,7 +159,7 @@ namespace SevenSwords.CharacterCore
 
                     collisionInfo.below = directionY == -1;
                     collisionInfo.above = directionY == 1;
-                    velocity.y = (hit.distance - skinWidth) * directionY;
+                    velocity.y = (hit.distance - skinWidth) * directionY * 10;
                     //detect grounded
                     if (collisionInfo.below && rayLength <= skinWidth + 0.001) //Skinwidth + buffer
                     {
@@ -212,7 +206,7 @@ namespace SevenSwords.CharacterCore
                     rayLength = hit.distance;
                     collisionInfo.left = directionX == -1;
                     collisionInfo.right = directionX == 1;
-                    velocity.x = (hit.distance - skinWidth) * directionX * 5;
+                    velocity.x = (hit.distance - skinWidth) * directionX*4;
                     if (rayLength <= skinWidth + 0.001)
                     {
                         collisionInfo.wall = true;
@@ -221,6 +215,7 @@ namespace SevenSwords.CharacterCore
                     {
                         collisionInfo.wall = false;
                     }
+                    collisionInfo.distToWall = hit.distance;
                 }
                 else
                 {
@@ -232,13 +227,36 @@ namespace SevenSwords.CharacterCore
         #endregion
 
         #region Movement
-
+        private float currentXSpeed;
+        public float _currentXSpeed { get { return currentXSpeed; } }
         void resolveMovement()
         {
             //if(collisionInfo.left || collisionInfo.right)
             //    _charVariables.velocity.x = 0;
             transform.Translate(_charVariables.velocity * Time.deltaTime, Space.World);
+            
+            //transform.Translate(new Vector3(Mathf.Clamp(_charVariables.velocity.x, -collisionInfo.distToWall, collisionInfo.distToWall), _charVariables.velocity.y, _charVariables.velocity.z) * Time.deltaTime, Space.World);
+            Debug.Log(collisionInfo.wall);
         }
+
+        public void horizontalMove(float xVel)
+        {
+            currentXSpeed = xVel;
+            if(!(_stateMachine.currentState is Walk) &&!(_stateMachine.currentState is Air))
+            {
+                _stateMachine.ChangeState(new Walk(this, _currentXSpeed));
+            }
+        }
+
+        public void checkIdle()
+        {
+            if(!(_stateMachine.currentState is Idle) && !(_stateMachine.currentState is Air))
+            {
+                _stateMachine.ChangeState(new Idle(this));
+            }
+        }
+
+
 		#endregion
 	}
 }

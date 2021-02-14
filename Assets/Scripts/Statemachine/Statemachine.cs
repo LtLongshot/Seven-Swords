@@ -57,9 +57,9 @@ namespace SevenSwords.CharacterCore
 
 	public class TestState : IState
 	{
-		CharController owner;
+		NewCharController owner;
 
-		public TestState(CharController owner) { this.owner = owner; }
+		public TestState(NewCharController owner) { this.owner = owner; }
 
 		public void Enter()
 		{

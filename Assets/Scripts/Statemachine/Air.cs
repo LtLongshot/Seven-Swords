@@ -8,28 +8,28 @@ namespace SevenSwords.StateMchn
 {
 	public class Air : IState
 	{
-		CharController owner;
+		NewCharController owner;
 
-		public Air(CharController owner) { this.owner = owner; }
+		public Air(NewCharController owner) { this.owner = owner; }
 
 		public void Enter()
 		{
 			//change animation
-
+			Debug.Log("Air");
 		}
 
 		public void Execute()
 		{
 			//gravity affecting
-			owner._moveVar.velocity.y += owner._moveVar.gravity * Time.deltaTime;
+			owner._charVariables.velocity.y = owner._charVariables.gravity;
 			//TODO: Redo Air X Movement
-			owner._moveVar.velocity.x = owner._currentXSpeed;
+			owner._charVariables.velocity.x = owner._currentXSpeed;
 
 
 
-			if (owner.collisionInfo.below && owner._moveVar.velocity.y <= 0)
+			if (owner.collisionInfo.below && owner._charVariables.velocity.y <= 0)
 			{
-				owner._moveVar.velocity.y = 0;
+				owner._charVariables.velocity.y = 0;
 				owner._stateMachine.ChangeState(new Idle(owner));
 			}
 

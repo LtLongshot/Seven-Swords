@@ -7,9 +7,9 @@ namespace SevenSwords.StateMchn
 {
 	public class ClimbSlope : IState
 	{
-		CharController owner;
+		//NewCharController owner;
 
-		public ClimbSlope(CharController owner) { this.owner = owner; }
+		//public ClimbSlope(NewCharController owner) { this.owner = owner; }
 
 		public void Enter()
 		{
@@ -18,8 +18,8 @@ namespace SevenSwords.StateMchn
 
 		public void Execute()
 		{
-			owner._moveVar.velocity.x = owner._currentXSpeed;
-			owner._moveVar.velocity.y += owner._moveVar.gravity * Time.deltaTime;
+			//owner._moveVar.velocity.x = owner._currentXSpeed;
+			//owner._moveVar.velocity.y += owner._moveVar.gravity * Time.deltaTime;
 		}
 		public void Exit()
 		{

@@ -31,7 +31,7 @@ public class CameraController : MonoBehaviour
 
     public GameObject CameraPosDebug;
 
-    private CharController charController;
+    private NewCharController charController;
 
     // Start is called before the first frame update
     void Start()
@@ -50,13 +50,13 @@ public class CameraController : MonoBehaviour
         cameraTarget = playerCamera.WorldToViewportPoint(playerObject.transform.position);
         cameraTarget.z = 0;
 
-        charController = playerObject.GetComponent<CharController>();
+        charController = playerObject.GetComponent<NewCharController>();
     }
 
     // Update is called once per frame
     void LateUpdate()
     { 
-        if (Mathf.Abs(charController._moveVar.velocity.x) < velThreshold)
+        if (Mathf.Abs(charController._charVariables.velocity.x) < velThreshold)
         {
 
             if (playerCamera.WorldToViewportPoint(playerObject.transform.position).x < horzBounds.x || playerCamera.WorldToViewportPoint(playerObject.transform.position).x > horzBounds.y)
@@ -78,13 +78,13 @@ public class CameraController : MonoBehaviour
         }
         else
         {
-            if (charController._moveVar.velocity.x > 0) //moving right
+            if (charController._charVariables.velocity.x > 0) //moving right
             {
                 cameraTarget = playerCamera.WorldToViewportPoint(playerObject.transform.position);
                 cameraTarget.x = cameraTarget.x + (0.5f - horzBounds2.x);
                 cameraTarget.z = 0;
                 currentLerp = (1f - Mathf.Abs(playerCamera.WorldToViewportPoint(playerObject.transform.position).x-0.5f))/fastLerp;
-            }else if(charController._moveVar.velocity.x < 0) //moving left
+            }else if(charController._charVariables.velocity.x < 0) //moving left
             {
                 cameraTarget = playerCamera.WorldToViewportPoint(playerObject.transform.position);
                 cameraTarget.x = cameraTarget.x - (0.5f - horzBounds2.x);

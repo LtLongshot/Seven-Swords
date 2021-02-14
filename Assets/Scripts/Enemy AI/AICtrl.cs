@@ -14,22 +14,22 @@ public class AICtrl : MonoBehaviour
     const float jumpApexTime = 0.3f;
     const float jumpHeights = 1f;
 
-    private CharController charController;
+    //private CharController charController;
     // Start is called before the first frame update
     void Start()
     {
-        charController = gameObject.GetComponent<CharController>();
-        if (charController == null)
-        {
-            Debug.Log("No Char controller dummy");
-        }
+        //charController = gameObject.GetComponent<CharController>();
+        //if (charController == null)
+        //{
+        //    Debug.Log("No Char controller dummy");
+        //}
 
-        charController.setJumpValues(jumpHeights, jumpApexTime);
+        //charController.setJumpValues(jumpHeights, jumpApexTime);
     }
 
     // Update is called once per frame
     void Update()
     {
-        charController.checkIdle();
+        //charController.checkIdle();
     }
 }
