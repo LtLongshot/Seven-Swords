@@ -21,6 +21,8 @@ namespace SevenSwords.StateMchn
 
 			if(!owner.collisionInfo.grounded)
 				owner._charVariables.velocity.y = owner._charVariables.gravity;
+			else
+				owner._charVariables.velocity.y = owner._charVariables.gravity;
 		}
 
 		public void Exit()

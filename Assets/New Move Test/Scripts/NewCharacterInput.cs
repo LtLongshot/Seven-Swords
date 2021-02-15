@@ -13,8 +13,8 @@ namespace SevenSwords.CharacterCore
     public float walkspeed = 5f;
     public float runspeed = 6;
 
-    const float jumpApexTime = 0.3f;
-    const float jumpHeights = 0.5f;
+    public float jumpApexTime = 0.3f;
+    public float jumpHeights = 1f;
 
     private float currentSpeed;
 
@@ -34,7 +34,7 @@ namespace SevenSwords.CharacterCore
             Debug.Log("No Char controller dummy");
         }
 
-        //charController.setJumpValues(jumpHeights, jumpApexTime);
+        charController.setJumpValues(jumpHeights, jumpApexTime);
 
         //HitboxSetup();
 
@@ -46,7 +46,7 @@ namespace SevenSwords.CharacterCore
 
         CheckIdle();
         CheckHorizontalInput();
-        //CheckJump();
+        CheckJump();
         //PlayerBasicAttack();
 
     }
@@ -81,7 +81,7 @@ namespace SevenSwords.CharacterCore
     {
         if (player.GetButtonDown("Jump"))
         {
-
+                charController.jump();
         }
     }
 

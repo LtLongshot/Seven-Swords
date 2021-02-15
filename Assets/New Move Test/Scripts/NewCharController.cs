@@ -27,6 +27,8 @@ namespace SevenSwords.CharacterCore
         public int floorMask = 1 << 8;
         public int enemyMask = 1 << 10;
 
+
+        public Vector3 frameIntialVel;
     }
     public class NewCharController : MonoBehaviour
     {
@@ -46,6 +48,7 @@ namespace SevenSwords.CharacterCore
 
         private void FixedUpdate()
         {
+            _charVariables.frameIntialVel = _charVariables.velocity;
             //Collision Sim
             updateRaycastOrigins();
             collisionInfo.Reset();
@@ -57,7 +60,7 @@ namespace SevenSwords.CharacterCore
             verticalCollisions(ref _charVariables.velocity);
             if(_charVariables.velocity.x != 0)
             horizontalCollisions(ref _charVariables.velocity);
-
+            Debug.Log(collisionInfo.grounded);
             resolveMovement();
         }
         void Update()
@@ -165,7 +168,6 @@ namespace SevenSwords.CharacterCore
                     {
                         collisionInfo.grounded = true;
                         //grounded
-                        Debug.Log("Grounded");
                     }
                     else if(collisionInfo.above && rayLength <= skinWidth + 0.001)
                     {
@@ -231,12 +233,12 @@ namespace SevenSwords.CharacterCore
         public float _currentXSpeed { get { return currentXSpeed; } }
         void resolveMovement()
         {
-            //if(collisionInfo.left || collisionInfo.right)
-            //    _charVariables.velocity.x = 0;
-            transform.Translate(_charVariables.velocity * Time.deltaTime, Space.World);
-            
-            //transform.Translate(new Vector3(Mathf.Clamp(_charVariables.velocity.x, -collisionInfo.distToWall, collisionInfo.distToWall), _charVariables.velocity.y, _charVariables.velocity.z) * Time.deltaTime, Space.World);
-            Debug.Log(collisionInfo.wall);
+            Vector3 accelleration;
+            accelleration = ((_charVariables.frameIntialVel - _charVariables.velocity) / Time.deltaTime);
+
+            transform.position += Time.deltaTime * (_charVariables.velocity + Time.deltaTime * accelleration / 2);
+
+            //_charVariables.velocity += accelleration * (Time.deltaTime);
         }
 
         public void horizontalMove(float xVel)
@@ -256,7 +258,20 @@ namespace SevenSwords.CharacterCore
             }
         }
 
+        public void setJumpValues(float jumpHeight, float jumpApexTime)
+        {
+            _charVariables.gravity = -(jumpHeight) / Mathf.Pow(jumpApexTime, 2);
+            _charVariables.jumpVel = Mathf.Abs(_charVariables.gravity) * jumpApexTime;
+        }
 
-		#endregion
-	}
+        public void jump()
+        {
+            if (!(_stateMachine.currentState is Air))
+            {
+                _charVariables.velocity.y = _charVariables.jumpVel;
+                _stateMachine.ChangeState(new Air(this));
+            }
+        }
+        #endregion
+    }
 }

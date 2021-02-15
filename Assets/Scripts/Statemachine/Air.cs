@@ -16,19 +16,20 @@ namespace SevenSwords.StateMchn
 		{
 			//change animation
 			Debug.Log("Air");
+			owner.collisionInfo.grounded = false;
 		}
 
 		public void Execute()
 		{
 			//gravity affecting
-			owner._charVariables.velocity.y = owner._charVariables.gravity;
+			owner._charVariables.velocity.y += owner._charVariables.gravity * Time.deltaTime;
 			//TODO: Redo Air X Movement
 			owner._charVariables.velocity.x = owner._currentXSpeed;
 
-
-
-			if (owner.collisionInfo.below && owner._charVariables.velocity.y <= 0)
+			
+			if (owner.collisionInfo.grounded)
 			{
+				Debug.Log("da");
 				owner._charVariables.velocity.y = 0;
 				owner._stateMachine.ChangeState(new Idle(owner));
 			}
@@ -37,7 +38,7 @@ namespace SevenSwords.StateMchn
 
 		public void Exit()
 		{
-			//Debug.Log("YA");
+
 		}
 	}
 }
