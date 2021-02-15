@@ -18,11 +18,13 @@ namespace SevenSwords.StateMchn
 		public void Execute()
 		{
 			owner._charVariables.velocity.x = owner._currentXSpeed;
+			owner._charVariables.velocity.y = owner._charVariables.gravity;
 
-			if(!owner.collisionInfo.grounded)
+			if (!owner.collisionInfo.grounded)
+			{
 				owner._charVariables.velocity.y = owner._charVariables.gravity;
-			else
-				owner._charVariables.velocity.y = owner._charVariables.gravity;
+				owner._stateMachine.ChangeState(new Air(owner));
+			}		
 		}
 
 		public void Exit()

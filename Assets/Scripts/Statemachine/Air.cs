@@ -29,7 +29,6 @@ namespace SevenSwords.StateMchn
 			
 			if (owner.collisionInfo.grounded)
 			{
-				Debug.Log("da");
 				owner._charVariables.velocity.y = 0;
 				owner._stateMachine.ChangeState(new Idle(owner));
 			}

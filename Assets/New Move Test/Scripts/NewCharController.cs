@@ -56,11 +56,11 @@ namespace SevenSwords.CharacterCore
             //inputs and state mchn
             _stateMachine.Update();
 
-            //if (_charVariables.velocity.y !=0)
+            if (_charVariables.velocity.y !=0)
             verticalCollisions(ref _charVariables.velocity);
             if(_charVariables.velocity.x != 0)
             horizontalCollisions(ref _charVariables.velocity);
-            Debug.Log(collisionInfo.grounded);
+
             resolveMovement();
         }
         void Update()
@@ -110,6 +110,8 @@ namespace SevenSwords.CharacterCore
 
                 slopeAngleOld = slopeAngle;
 
+               // ceiling = grounded = false;
+
                 slopeAngle = 0;
 
                 distToWall = 10;//make it max speed
@@ -147,6 +149,7 @@ namespace SevenSwords.CharacterCore
         {
             float directionY = Mathf.Sign(velocity.y);
             float rayLength = Mathf.Abs((velocity.y) + skinWidth)/10;
+            int groundCount = 0, ceilingCount = 0;
 
             for (int i=0; i < verticalRayCount; i++)
             {
@@ -164,29 +167,33 @@ namespace SevenSwords.CharacterCore
                     collisionInfo.above = directionY == 1;
                     velocity.y = (hit.distance - skinWidth) * directionY * 10;
                     //detect grounded
-                    if (collisionInfo.below && rayLength <= skinWidth + 0.001) //Skinwidth + buffer
+                    if (collisionInfo.below && rayLength <= skinWidth + 0.01) //Skinwidth + buffer
                     {
-                        collisionInfo.grounded = true;
+                        groundCount++;
+                        //collisionInfo.grounded = true;
                         //grounded
                     }
-                    else if(collisionInfo.above && rayLength <= skinWidth + 0.001)
+                    else if(collisionInfo.above && rayLength <= skinWidth + 0.01)
                     {
-                        collisionInfo.ceiling = true;
+                        ceilingCount++;
+                        //collisionInfo.ceiling = true;
                         Debug.Log("Celing");
                     }
-                    else
-                    {
-                        collisionInfo.grounded = false;
-                        collisionInfo.ceiling = false;
-                    }
-
-                }
-                else
-                {
-                    collisionInfo.ceiling = false;
-                    collisionInfo.grounded = false;
                 }
             }
+            if (groundCount > 0)
+                collisionInfo.grounded = true;
+            else
+            {
+                collisionInfo.grounded = false;
+                //if(!(_stateMachine.currentState is Air))
+                //_stateMachine.ChangeState(new Air(this));
+            }
+
+                if (ceilingCount > 0)
+                collisionInfo.ceiling = true;
+            else
+                collisionInfo.ceiling = false;
         }
 
         void horizontalCollisions (ref Vector3 velocity)
@@ -236,9 +243,11 @@ namespace SevenSwords.CharacterCore
             Vector3 accelleration;
             accelleration = ((_charVariables.frameIntialVel - _charVariables.velocity) / Time.deltaTime);
 
-            transform.position += Time.deltaTime * (_charVariables.velocity + Time.deltaTime * accelleration / 2);
+            //transform.position += Time.deltaTime * (_charVariables.velocity + Time.deltaTime * accelleration / 2);
 
-            //_charVariables.velocity += accelleration * (Time.deltaTime);
+            transform.position += _charVariables.velocity * Time.deltaTime + accelleration * (Time.deltaTime * Time.deltaTime * 0.5f);
+
+            _charVariables.velocity += (accelleration * (Time.deltaTime/2)) * Time.deltaTime;
         }
 
         public void horizontalMove(float xVel)
@@ -256,9 +265,10 @@ namespace SevenSwords.CharacterCore
             {
                 _stateMachine.ChangeState(new Idle(this));
             }
+            currentXSpeed = 0f;
         }
 
-        public void setJumpValues(float jumpHeight, float jumpApexTime)
+		public void setJumpValues(float jumpHeight, float jumpApexTime)
         {
             _charVariables.gravity = -(jumpHeight) / Mathf.Pow(jumpApexTime, 2);
             _charVariables.jumpVel = Mathf.Abs(_charVariables.gravity) * jumpApexTime;
