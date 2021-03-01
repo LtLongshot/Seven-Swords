@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using SevenSwords.StateMchn;
+using TMPro;
 
 namespace SevenSwords.CharacterCore
 {
@@ -16,19 +17,23 @@ namespace SevenSwords.CharacterCore
 
         public float gravity = -9.8f;
 
-        public float maxClimbAngle = 70;
-        public float maxDecendAngle = 70;
+        public float maxClimbAngle = 70; //intrinsic
+        public float maxDecendAngle = 70; //intrinsic
 
         //General Movement
         public Vector3 velocity = new Vector3(0, 0, 0);
 
         public bool isRight = true;
 
-        public int floorMask = 1 << 8;
-        public int enemyMask = 1 << 10;
+        public int floorMask = 1 << 8;//intrinsic
+        public int enemyMask = 1 << 10;//intrinsic
+
+        public bool hasJumped = false;
 
 
         public Vector3 frameIntialVel;
+        public Vector3 hitboxCreationPos = new Vector3(0.16f,0,0);
+        public Vector3 hitboxCreationNeg = new Vector3(-0.16f, 0, 0);
     }
     public class NewCharController : MonoBehaviour
     {
@@ -43,6 +48,8 @@ namespace SevenSwords.CharacterCore
         {
             collisions = GetComponent<BoxCollider2D>();
             calculateRaySpacing();
+            _stateMachine.Start();
+            _stateMachine.ChangeState(new Idle(this));
         }
         // Update is called once per frame
 
@@ -65,8 +72,7 @@ namespace SevenSwords.CharacterCore
         }
         void Update()
         {
-
-            
+            _stateMachine.InputRead();
         }
 
         #region Collisions
@@ -243,8 +249,6 @@ namespace SevenSwords.CharacterCore
             Vector3 accelleration;
             accelleration = ((_charVariables.frameIntialVel - _charVariables.velocity) / Time.deltaTime);
 
-            //transform.position += Time.deltaTime * (_charVariables.velocity + Time.deltaTime * accelleration / 2);
-
             transform.position += _charVariables.velocity * Time.deltaTime + accelleration * (Time.deltaTime * Time.deltaTime * 0.5f);
 
             _charVariables.velocity += (accelleration * (Time.deltaTime/2)) * Time.deltaTime;
@@ -255,7 +259,7 @@ namespace SevenSwords.CharacterCore
             currentXSpeed = xVel;
             if(!(_stateMachine.currentState is Walk) &&!(_stateMachine.currentState is Air))
             {
-                _stateMachine.ChangeState(new Walk(this, _currentXSpeed));
+                _stateMachine.ChangeState(new Walk(this));
             }
         }
 
@@ -278,10 +282,68 @@ namespace SevenSwords.CharacterCore
         {
             if (!(_stateMachine.currentState is Air))
             {
+                _charVariables.hasJumped = true;
                 _charVariables.velocity.y = _charVariables.jumpVel;
                 _stateMachine.ChangeState(new Air(this));
             }
         }
         #endregion
+
+        public enum BladeColour { white, green, red, blue };
+
+        public struct HitboxData
+        {
+            public float damage;
+            public float hitboxCreationTime;
+            public float hitboxLingeringTime; //Time from frame it is changed to so creation time + Lingering time
+            public Vector2 hitboxSize;
+            public BladeColour colour;
+            public float hitstun;
+        }
+
+        public GameObject HitboxCreationPoint;
+
+        #region Player Specifics
+        public void PlayerBasicAttack(HitboxData hitbox)
+        {
+            if (!(_stateMachine.currentState is PlayerAttack))
+            {
+                _stateMachine.ChangeState(new PlayerAttack(this, hitbox));
+                _stateMachine.LockState(hitbox.hitboxLingeringTime);
+            }
+        }
+
+        public Collider2D[] CreatePlayerHitbox(HitboxData hitbox)
+        {
+            //this is a lil jank for garbage collection
+            //for right facing only ATM
+            if (_charVariables.isRight)
+                return Physics2D.OverlapBoxAll(transform.position + (_charVariables.hitboxCreationPos + new Vector3(hitbox.hitboxSize.x / 2, 0, 0)), hitbox.hitboxSize, 0, _charVariables.enemyMask);
+            else
+                return Physics2D.OverlapBoxAll(transform.position + (_charVariables.hitboxCreationNeg - new Vector3(hitbox.hitboxSize.x / 2, 0, 0)), hitbox.hitboxSize, 0, _charVariables.enemyMask);
+        }
+		#endregion
+
+		#region Debug Tools
+		/// <summary>
+		/// DEBUG TOOLS AND VARIABLES FOR UI LINKING
+		/// </summary>
+
+		public GameObject stateDebug;
+        public GameObject velocityDebug;
+        public GameObject gravityDebug;
+
+        public void DebugTools()
+        {
+            if (stateDebug != null)
+                stateDebug.GetComponent<TextMeshProUGUI>().SetText("Current State: " + _stateMachine.currentState);
+            if (velocityDebug != null)
+                velocityDebug.GetComponent<TextMeshProUGUI>().SetText("Velocity: " + _charVariables.velocity);
+            if (velocityDebug != null)
+                gravityDebug.GetComponent<TextMeshProUGUI>().SetText("Gravity: " + _charVariables.gravity * Time.deltaTime);
+
+        }
+        #endregion
+
     }
 }

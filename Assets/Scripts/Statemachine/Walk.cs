@@ -7,7 +7,31 @@ namespace SevenSwords.StateMchn
 		NewCharController owner;
 		float xVel;
 
-		public Walk(NewCharController owner, float xVel) { this.owner = owner; this.xVel = xVel; }
+		public Walk(NewCharController owner) { this.owner = owner; }
+
+		public void Input()
+		{
+			if (owner._stateMachine.stateInputs._inputList.Count == 0)
+			{
+				owner._stateMachine.ChangeState(new Idle(owner));
+			}
+			else {
+				for (int i = 0; i < owner._stateMachine.stateInputs._inputList.Count; i++)
+				{
+					switch (owner._stateMachine.stateInputs._inputList[i].input)
+					{
+						case (StateInputs.Inputs.jump):
+							owner.jump();
+							break;
+
+						case (StateInputs.Inputs.horizontal):
+							xVel = owner._stateMachine.stateInputs._inputList[i].value;
+							break;
+					}
+				}
+			}
+			owner._stateMachine.stateInputs.clearList();
+		}
 
 		public void Enter()
 		{
@@ -17,7 +41,7 @@ namespace SevenSwords.StateMchn
 
 		public void Execute()
 		{
-			owner._charVariables.velocity.x = owner._currentXSpeed;
+			owner._charVariables.velocity.x = 5 * xVel;
 			owner._charVariables.velocity.y = owner._charVariables.gravity;
 
 			if (!owner.collisionInfo.grounded)

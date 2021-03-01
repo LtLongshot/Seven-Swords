@@ -4,11 +4,18 @@ namespace SevenSwords.CharacterCore
 	public interface IState
 	{
 		void Enter();
+		void Input();
 		void Execute();
 		void Exit();
 	}
+
 	public class StateMachine
 	{
+		//initialisation state
+		public void Start()
+		{
+			stateInputs = new StateInputs();
+		}
 
 		public IState currentState { get; private set; }
 		public IState previousState { get; private set; }
@@ -16,6 +23,7 @@ namespace SevenSwords.CharacterCore
 		private bool stateLocked = false;
 		private float timeUnlock;
 
+		public StateInputs stateInputs;
 
 		public void ChangeState(IState newState)
 		{
@@ -31,6 +39,12 @@ namespace SevenSwords.CharacterCore
 
 				currentState.Enter();
 			}
+		}
+
+		public void InputRead()
+		{
+			if (currentState != null)
+				currentState.Input();
 		}
 
 		public void Update()
@@ -60,6 +74,11 @@ namespace SevenSwords.CharacterCore
 		NewCharController owner;
 
 		public TestState(NewCharController owner) { this.owner = owner; }
+
+		public void Input()
+		{
+
+		}
 
 		public void Enter()
 		{

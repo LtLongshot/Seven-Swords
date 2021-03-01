@@ -11,7 +11,23 @@ namespace SevenSwords.StateMchn
 		NewCharController owner;
 
 		public Air(NewCharController owner) { this.owner = owner; }
-
+		float xVel;
+		public void Input()
+		{
+			if (owner._stateMachine.stateInputs._inputList.Count > 0)
+			{
+				for (int i = 0; i < owner._stateMachine.stateInputs._inputList.Count; i++)
+				{
+					switch (owner._stateMachine.stateInputs._inputList[i].input)
+					{
+						case (StateInputs.Inputs.horizontal):
+							xVel = owner._stateMachine.stateInputs._inputList[i].value;
+							break;
+					}
+				}
+			}
+			owner._stateMachine.stateInputs.clearList();
+		}
 		public void Enter()
 		{
 			//change animation
@@ -21,10 +37,14 @@ namespace SevenSwords.StateMchn
 
 		public void Execute()
 		{
-			//gravity affecting
-			owner._charVariables.velocity.y += owner._charVariables.gravity * Time.deltaTime;
+			
+			if(owner._charVariables.hasJumped && owner._charVariables.velocity.y < 0)
+				owner._charVariables.velocity.y += owner._charVariables.gravity*2 * Time.deltaTime; //More gravity when falling from peak of jump
+			else
+				owner._charVariables.velocity.y += owner._charVariables.gravity * Time.deltaTime;
+
 			//TODO: Redo Air X Movement
-			owner._charVariables.velocity.x = owner._currentXSpeed;
+			owner._charVariables.velocity.x = 5*xVel;
 
 			
 			if (owner.collisionInfo.grounded)
@@ -32,6 +52,7 @@ namespace SevenSwords.StateMchn
 				owner._charVariables.velocity.y = 0;
 				owner._stateMachine.ChangeState(new Idle(owner));
 			}
+
 
 		}
 

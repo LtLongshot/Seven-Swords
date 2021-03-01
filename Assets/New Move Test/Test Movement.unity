@@ -945,6 +945,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   verticalRayCount: 4
   horizontalRayCount: 4
+  HitboxCreationPoint: {fileID: 0}
+  stateDebug: {fileID: 0}
+  velocityDebug: {fileID: 0}
+  gravityDebug: {fileID: 0}
 --- !u!114 &1758765167
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -960,8 +964,8 @@ MonoBehaviour:
   slowWalkSpeed: 2
   walkspeed: 5
   runspeed: 6
-  jumpApexTime: 1
-  jumpHeights: 8
+  jumpApexTime: 0.5
+  jumpHeights: 6
   playerID: 0
 --- !u!1 &1863796628
 GameObject:
@@ -1265,7 +1269,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1990287796}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -3.59, y: 4.18, z: -1.0652149}
+  m_LocalPosition: {x: -3.62, y: 3.38, z: -1.0652149}
   m_LocalScale: {x: 5.8314, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
@@ -1372,10 +1376,10 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2134900764}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 6.64, y: 3.05, z: -1.0652149}
-  m_LocalScale: {x: 1.45785, y: 4.375, z: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0.501846, w: 0.86495703}
+  m_LocalPosition: {x: 6.64, y: 2.1, z: -1.0652149}
+  m_LocalScale: {x: 1.45785, y: 8.790688, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 5
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: -60.244}

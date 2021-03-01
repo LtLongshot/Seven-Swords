@@ -10,6 +10,10 @@ namespace SevenSwords.StateMchn
 		//NewCharController owner;
 
 		//public ClimbSlope(NewCharController owner) { this.owner = owner; }
+		public void Input()
+		{
+
+		}
 
 		public void Enter()
 		{
