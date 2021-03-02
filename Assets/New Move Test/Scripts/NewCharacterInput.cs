@@ -69,7 +69,7 @@ public class NewCharacterInput : MonoBehaviour
     {
         if (player.GetButtonDown("Jump"))
         {
-                charController.jump();
+            charController._stateMachine.stateInputs.jump(1f);
         }
     }
 

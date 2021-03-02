@@ -17,7 +17,15 @@ Shader "Custom/GroundTexture"
         [IntRange]_Roughness("Roughness", Range(1, 8)) = 3
         _Persistance("Persistance", Range(0, 1)) = 0.4
         _MainColour("Main Colour", Color) = (1,1,1,1)
+        _MainColour2("Main Colour2", Color) = (1,1,1,1)
+        _MainColour3("Main Colour3", Color) = (1,1,1,1)
+        _MainColour4("Main Colour4", Color) = (1,1,1,1)
+        _MainColour5("Main Colour5", Color) = (1,1,1,1)
         _SubColour("Sub Colour", Color) = (1,1,1,1)
+        _SubColour2("Sub Colour2", Color) = (1,1,1,1)
+        _SubColour3("Sub Colour3", Color) = (1,1,1,1)
+        _SubColour4("Sub Colour4", Color) = (1,1,1,1)
+        _SubColour5("Sub Colour5", Color) = (1,1,1,1)
 
 
         _Pixelization("Pixelization", float) = 4.0
@@ -51,6 +59,7 @@ Shader "Custom/GroundTexture"
                 #include "UnityCG.cginc"
                 #include "HLSLSupport.cginc"
                 #include "Assets/Scripts/Shader/TestSetup/ClassicNoise2D.hlsl"
+                #include "noiseSimplex.cginc"
 
 
                 #pragma vertex vert
@@ -68,7 +77,15 @@ Shader "Custom/GroundTexture"
 
                 sampler2D _MainTex;
                 fixed4 _MainColour;
+                fixed4 _MainColour2;
+                fixed4 _MainColour3;
+                fixed4 _MainColour4;
+                fixed4 _MainColour5;
                 fixed4 _SubColour;
+                fixed4 _SubColour2;
+                fixed4 _SubColour3;
+                fixed4 _SubColour4;
+                fixed4 _SubColour5;
                 float _Pixelization;
                 float _RandomMulti;
                 float _CellSize;
@@ -95,7 +112,7 @@ Shader "Custom/GroundTexture"
 
                     [unroll]
                     for (int i = 0; i < OCTAVES; i++) {
-                        noise = noise + cnoise(value * frequency *0.72354) * factor;
+                        noise = noise + snoise(value * frequency *0.72354) * factor;
                         factor *= _Persistance;
                         frequency *= _Roughness;
                     }
@@ -126,34 +143,54 @@ Shader "Custom/GroundTexture"
                     
                     //for scaling noise                   
                     float2 value = uv / (_CellSize);
-                    float noise = sampleLayeredNoise(value) +0.5f;
+                    float noise = sampleLayeredNoise(value);
+
+                    float dirtNoise = sampleLayeredNoise(value*0.5f) +0.5f;
 
                     fixed4 noiseColor;
 
                     //float modNoise = (fmod(noise, 0.1)*10) *noise);
 
-                    noise = round(noise*5)/5;
+                    noise = round(noise*10)/10;
 
                     fixed4 noise4 = fixed4(noise, noise, noise, 1);
 
                     //fixed4 noiseColor = (noise + _MainColour);
-                    if (noise < 0.3) {
-                        noiseColor = (_SubColour); //lighter
-                    }
-                    else if (noise >= 0.3 && noise <= 1) {
-                        noiseColor = (_MainColour* noise); //darker
-                    }
+                    if (noise < 0) { //sub dirt
+                        //noiseColor = (_SubColour*(1- dirtNoise)); //lighter
+                        if (noise >= -1.5 && noise < -1) {
+                            noiseColor = (_SubColour);
+                        }
+                        else if (noise >= -1 && noise <= -0.8) {
+                            noiseColor = (_SubColour2);
+                        }                         
+                        else if (noise >= -0.8 && noise <= -0.5) {
+                            noiseColor = (_SubColour3);
+                        }                        
+                        else if (noise >= -0.5 && noise <= -0.3) {
+                            noiseColor = (_SubColour4);
+                        }                        
+                        else if (noise >= -0.3 && noise <= -0.01) {
+                            noiseColor = (_SubColour5);
+                        }                        
 
-                    //if (noise2 < 0.1) {
-                    //    noiseColor = (noiseColor * noise2);
-                    //}
-                    //else if (noise2 >= 0.1 && noise <= 1){
-                    //    noiseColor = (noiseColor * noise2);
-                    //}
-
-                    noiseColor.a = 1;
-                    fixed4 testColour = noise + _MainColour;
-                    testColour.a = 1;
+                    }
+                    else if (noise >= 0 && noise < 0.2) { //stone
+                        noiseColor = (_MainColour); //darker
+                    }
+                    else if (noise >= 0.2 && noise < 0.5){
+                    noiseColor = (_MainColour2);
+                    } else if (noise >= 0.5 && noise < 0.8){
+                    noiseColor = (_MainColour3);
+                    }else if (noise >= 0.8 && noise < 1.2){
+                    noiseColor = (_MainColour4);
+                    }else if (noise >= 1.2 && noise < 1.5){
+                    noiseColor = (_MainColour5);
+                    }
+                    
+                    //noiseColor.a = 1;
+                    fixed4 testColour = noise;
+                    //testColour.a = 1;
 
                     return noiseColor;
                 }

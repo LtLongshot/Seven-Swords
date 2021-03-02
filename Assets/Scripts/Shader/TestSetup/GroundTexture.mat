@@ -8,7 +8,7 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: GroundTexture
-  m_Shader: {fileID: 4800000, guid: d07b595f7e4f09c4888b357142768679, type: 3}
+  m_Shader: {fileID: -6465566751694194690, guid: 95a79de3b820acf489dac9cff391e675, type: 3}
   m_ShaderKeywords: ETC1_EXTERNAL_ALPHA
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
@@ -19,34 +19,26 @@ Material:
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
-    - _AlphaTex:
+    - Texture2D_01b033b76378476091a28f998efad786:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
-    - _MainTex:
+    - unity_Lightmaps:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - unity_LightmapsInd:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - unity_ShadowMasks:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     m_Floats:
-    - PixelSnap: 0
-    - _CellAmount: 1
-    - _CellSize: 0.97
-    - _EnableExternalAlpha: 0
-    - _Persistance: 0.775
-    - _Pixelization: 64
-    - _RandV: 38.5
-    - _RandW: 16.78
-    - _RandX: 19.31
-    - _RandY: 20.64
-    - _RandZ: 20.86
-    - _RandomMulti: 1
-    - _RandomMultiY: 2.1
-    - _Roughness: 3
+    - Vector1_00d9cd2686724697a334505d420d091d: 100
+    - Vector1_5f4225cada9c4fc090e7bed054187542: 0
     m_Colors:
-    - _Color: {r: 1, g: 1, b: 1, a: 1}
-    - _Flip: {r: 1, g: 1, b: 1, a: 1}
-    - _MainColour: {r: 0.23300104, g: 0.24290171, b: 0.26415092, a: 1}
-    - _Period: {r: 4, g: 4, b: 0, a: 0}
-    - _RendererColor: {r: 1, g: 1, b: 1, a: 1}
-    - _SubColour: {r: 0.26415092, g: 0.19130579, b: 0.1457814, a: 1}
+    - Color_17ee916a99b04217a18cc656d0671ecc: {r: 0.735849, g: 0.45305216, b: 0, a: 1}
+    - Color_2da3015bc4b74626bf6fbaf8d3bf45a6: {r: 0.24452654, g: 0.3065879, b: 0.3301887, a: 1}
   m_BuildTextureStacks: []
