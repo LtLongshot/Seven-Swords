@@ -14,6 +14,8 @@ namespace SevenSwords.StateMchn
 		float xVel;
 		public void Input()
 		{
+
+			xVel = 0f;
 			if (owner._stateMachine.stateInputs._inputList.Count > 0)
 			{
 				for (int i = 0; i < owner._stateMachine.stateInputs._inputList.Count; i++)
@@ -26,6 +28,7 @@ namespace SevenSwords.StateMchn
 					}
 				}
 			}
+
 			owner._stateMachine.stateInputs.clearList();
 		}
 		public void Enter()

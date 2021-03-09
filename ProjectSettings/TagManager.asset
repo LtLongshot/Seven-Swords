@@ -42,3 +42,15 @@ TagManager:
   - name: Default
     uniqueID: 0
     locked: 0
+  - name: Below
+    uniqueID: 3382286099
+    locked: 0
+  - name: Player
+    uniqueID: 4112100517
+    locked: 0
+  - name: Prop
+    uniqueID: 1609252569
+    locked: 0
+  - name: Ground
+    uniqueID: 3378952819
+    locked: 0

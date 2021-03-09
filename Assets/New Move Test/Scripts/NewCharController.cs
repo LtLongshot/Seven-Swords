@@ -30,7 +30,6 @@ namespace SevenSwords.CharacterCore
 
         public bool hasJumped = false;
 
-
         public Vector3 frameIntialVel;
         public Vector3 hitboxCreationPos = new Vector3(0.16f,0,0);
         public Vector3 hitboxCreationNeg = new Vector3(-0.16f, 0, 0);
@@ -154,7 +153,7 @@ namespace SevenSwords.CharacterCore
         void verticalCollisions(ref Vector3 velocity)
         {
             float directionY = Mathf.Sign(velocity.y);
-            float rayLength = Mathf.Abs((velocity.y) + skinWidth)/10;
+            float rayLength = Mathf.Abs((velocity.y)/10 + skinWidth);
             int groundCount = 0, ceilingCount = 0;
 
             for (int i=0; i < verticalRayCount; i++)
@@ -172,6 +171,15 @@ namespace SevenSwords.CharacterCore
                     collisionInfo.below = directionY == -1;
                     collisionInfo.above = directionY == 1;
                     velocity.y = (hit.distance - skinWidth) * directionY * 10;
+
+                    //slope climbing collisions if there is a collision above while climbing slope
+                    //TODO GET TO ACTUALLY WORKING
+                    if (collisionInfo.climbingSlope)
+                    {
+                        velocity.x = velocity.y / Mathf.Tan(collisionInfo.slopeAngle * Mathf.Deg2Rad) * Mathf.Sign(velocity.x);
+                    }
+
+
                     //detect grounded
                     if (collisionInfo.below && rayLength <= skinWidth + 0.01) //Skinwidth + buffer
                     {
@@ -205,7 +213,7 @@ namespace SevenSwords.CharacterCore
         void horizontalCollisions (ref Vector3 velocity)
         {
             float directionX = Mathf.Sign(velocity.x);
-            float rayLength = Mathf.Abs((velocity.x) + skinWidth) / 5;
+            float rayLength = Mathf.Abs((velocity.x)/10 + skinWidth) ;
 
             for (int i=0; i < horizontalRayCount; i++)
             {
@@ -218,24 +226,64 @@ namespace SevenSwords.CharacterCore
 
                 if (hit)
                 {
-                    rayLength = hit.distance;
-                    collisionInfo.left = directionX == -1;
-                    collisionInfo.right = directionX == 1;
-                    velocity.x = (hit.distance - skinWidth) * directionX*4;
-                    if (rayLength <= skinWidth + 0.001)
+                    float slopeAngle = Vector2.Angle(hit.normal, Vector2.up);
+
+                    if (i == 0 && slopeAngle <= _charVariables.maxClimbAngle)
                     {
-                        collisionInfo.wall = true;
+                        float distanceToSlopeStart = 0;
+                        if (slopeAngle != collisionInfo.slopeAngleOld)
+                        {
+                            distanceToSlopeStart = hit.distance - skinWidth;
+                            //velocity.x -= distanceToSlopeStart * directionX;
+                            Debug.Log(distanceToSlopeStart);
+                        }
+                        if(distanceToSlopeStart <= 0.1f)
+                        ClimbSlope(ref _charVariables.velocity, slopeAngle);
+                        velocity.x += distanceToSlopeStart * directionX;
+                    }
+
+                    if (!collisionInfo.climbingSlope && slopeAngle > _charVariables.maxClimbAngle)
+                    {
+
+                        rayLength = hit.distance;
+                        collisionInfo.left = directionX == -1;
+                        collisionInfo.right = directionX == 1;
+                        velocity.x = (hit.distance - skinWidth) * directionX * 4;
+
+                        if (collisionInfo.climbingSlope)
+                        {
+                            velocity.y = Mathf.Tan(collisionInfo.slopeAngle * Mathf.Deg2Rad) * Mathf.Abs(velocity.x);
+                        }
+
+                        if (rayLength <= skinWidth + 0.001)
+                        {
+                            collisionInfo.wall = true;
+                        }
+                        else
+                        {
+                            collisionInfo.wall = false;
+                        }
+                        collisionInfo.distToWall = hit.distance;
                     }
                     else
                     {
                         collisionInfo.wall = false;
                     }
-                    collisionInfo.distToWall = hit.distance;
                 }
-                else
-                {
-                    collisionInfo.wall = false;
-                }
+            }
+        }
+
+        void ClimbSlope(ref Vector3 velocity, float slopeAngle)
+        {
+            float moveDistance = Mathf.Abs(velocity.x);
+            float climbVelY = Mathf.Sin(slopeAngle * Mathf.Deg2Rad) * moveDistance;
+            if (velocity.y <= climbVelY)
+            {
+                velocity.y = climbVelY;
+                velocity.x = Mathf.Cos(slopeAngle * Mathf.Deg2Rad) * moveDistance * Mathf.Sign(velocity.x);
+                collisionInfo.below = true;
+                collisionInfo.climbingSlope = true;
+                collisionInfo.slopeAngle = slopeAngle;
             }
         }
 
@@ -250,7 +298,7 @@ namespace SevenSwords.CharacterCore
             accelleration = ((_charVariables.frameIntialVel - _charVariables.velocity) / Time.deltaTime);
 
             transform.position += _charVariables.velocity * Time.deltaTime + accelleration * (Time.deltaTime * Time.deltaTime * 0.5f);
-
+            
             _charVariables.velocity += (accelleration * (Time.deltaTime/2)) * Time.deltaTime;
         }
 

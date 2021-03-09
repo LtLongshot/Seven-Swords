@@ -8,7 +8,10 @@ EditorBuildSettings:
   - enabled: 0
     path: Assets/Scenes/SampleScene.unity
     guid: 9fc0d4010bbf28b4594072e72b8655ab
-  - enabled: 1
+  - enabled: 0
     path: Assets/New Move Test/Test Movement.unity
     guid: 9da8aa494962b6e4383a6993860475a4
+  - enabled: 1
+    path: Assets/Scenes/IsolatedTestScene.unity
+    guid: 2371dae2fa8897b4da6dfb768e841285
   m_configObjects: {}
