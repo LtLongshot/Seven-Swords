@@ -62,10 +62,16 @@ namespace SevenSwords.CharacterCore
             //inputs and state mchn
             _stateMachine.Update();
 
-            if (_charVariables.velocity.y !=0)
-            verticalCollisions(ref _charVariables.velocity);
-            if(_charVariables.velocity.x != 0)
+            if (_charVariables.velocity.y != 0)
+                verticalCollisions(ref _charVariables.velocity);
+
+            if (_charVariables.velocity.x != 0)
             horizontalCollisions(ref _charVariables.velocity);
+
+            if (_charVariables.velocity.y < -0.0001f)
+            {
+                DescendSlope(ref _charVariables.velocity);
+            }
 
             resolveMovement();
         }
@@ -156,7 +162,7 @@ namespace SevenSwords.CharacterCore
             float rayLength = Mathf.Abs((velocity.y)/10 + skinWidth);
             int groundCount = 0, ceilingCount = 0;
 
-            for (int i=0; i < verticalRayCount; i++)
+            for (int i = 0; i < verticalRayCount; i++)
             {
                 Vector2 rayOrigin = (directionY == -1) ? raycastOrigins.bottomLeft : raycastOrigins.topLeft;
                 rayOrigin += Vector2.right * (verticalRaySpacing * i);
@@ -181,27 +187,24 @@ namespace SevenSwords.CharacterCore
 
 
                     //detect grounded
-                    if (collisionInfo.below && rayLength <= skinWidth + 0.01) //Skinwidth + buffer
+                    if (collisionInfo.below && rayLength <= skinWidth + 0.001) //Skinwidth + buffer
                     {
                         groundCount++;
-                        //collisionInfo.grounded = true;
-                        //grounded
                     }
-                    else if(collisionInfo.above && rayLength <= skinWidth + 0.01)
+                    else if (collisionInfo.above && rayLength <= skinWidth + 0.01)
                     {
                         ceilingCount++;
-                        //collisionInfo.ceiling = true;
                         Debug.Log("Celing");
                     }
                 }
             }
+
+            //Ground collision testing (need to refactor)
             if (groundCount > 0)
                 collisionInfo.grounded = true;
             else
             {
                 collisionInfo.grounded = false;
-                //if(!(_stateMachine.currentState is Air))
-                //_stateMachine.ChangeState(new Air(this));
             }
 
                 if (ceilingCount > 0)
@@ -234,23 +237,23 @@ namespace SevenSwords.CharacterCore
                         if (slopeAngle != collisionInfo.slopeAngleOld)
                         {
                             distanceToSlopeStart = hit.distance - skinWidth;
-                            //velocity.x -= distanceToSlopeStart * directionX;
+                            velocity.x -= distanceToSlopeStart * directionX;
                             //Debug.Log(distanceToSlopeStart);
                         }
-                        if(distanceToSlopeStart <= 0.1f)
+                        if(distanceToSlopeStart <= skinWidth && collisionInfo.grounded)
                         ClimbSlope(ref _charVariables.velocity, slopeAngle);
                         velocity.x += distanceToSlopeStart * directionX;
                     }
 
-                    if ( slopeAngle > _charVariables.maxClimbAngle)
+                    if ( slopeAngle > _charVariables.maxClimbAngle)//!collisionInfo.climbingSlope ||
                     {
 
                         rayLength = hit.distance;
                         collisionInfo.left = directionX == -1;
                         collisionInfo.right = directionX == 1;
-                        velocity.x = (hit.distance - skinWidth) * directionX * 4;
+                        velocity.x = (hit.distance - skinWidth) * directionX;
                         if (collisionInfo.climbingSlope)
-                            velocity.y = Mathf.Tan(collisionInfo.slopeAngle * Mathf.Deg2Rad) * Mathf.Abs(velocity.x);
+                            velocity.y = Mathf.Tan((collisionInfo.slopeAngle * Mathf.Deg2Rad) * Mathf.Abs(velocity.x));
 
                         if (rayLength <= skinWidth + 0.001)
                         {
@@ -268,21 +271,73 @@ namespace SevenSwords.CharacterCore
                     }
                 }
             }
+
+            //TODO FIX THIS IS DETECTING ANGLE CHANGES WHEN ON A SLOPE
+            ////slope climb smoothing (for lower angles changing into larger angles)
+            //if (collisionInfo.climbingSlope)
+            //{
+            //    rayLength = Mathf.Abs(velocity.x) + skinWidth;
+            //    Vector2 rayOrigin = ((directionX == -1) ? raycastOrigins.bottomRight : raycastOrigins.bottomLeft) + Vector2.up * velocity.y;
+            //    RaycastHit2D hit = Physics2D.Raycast(rayOrigin, Vector2.right * directionX, rayLength, _charVariables.floorMask);
+            //    if (hit)
+            //    {
+            //        float slopeAngle = Vector2.Angle(hit.normal, Vector2.up);
+            //        if (slopeAngle != collisionInfo.slopeAngle)
+            //        {
+            //            velocity.x = (hit.distance - skinWidth) * directionX;
+            //            collisionInfo.slopeAngle = slopeAngle;
+            //            Debug.Log("Angle Change");
+            //        }
+            //    }
+            //}
         }
 
         void ClimbSlope(ref Vector3 velocity, float slopeAngle)
         {
             Debug.Log("Climbing");
             float moveDistance = Mathf.Abs(velocity.x);
-            float climbVelY = Mathf.Sin(slopeAngle * Mathf.Deg2Rad) * moveDistance;
+            float climbVelY = (Mathf.Sin(slopeAngle * Mathf.Deg2Rad) * moveDistance);
             if (velocity.y <= climbVelY)
             {
-                velocity.y = climbVelY;
+                velocity.y = climbVelY - (_charVariables.frameIntialVel.y * Time.deltaTime);
                 velocity.x = Mathf.Cos(slopeAngle * Mathf.Deg2Rad) * moveDistance * Mathf.Sign(velocity.x);
                 collisionInfo.below = true;
                 collisionInfo.climbingSlope = true;
                 collisionInfo.slopeAngle = slopeAngle;
             }
+        }
+
+        void DescendSlope(ref Vector3 velocity)
+        {
+            float directionX = Mathf.Sign(velocity.x);
+            Vector2 rayOrigin = ((directionX == -1) ? raycastOrigins.bottomRight : raycastOrigins.bottomLeft);
+            RaycastHit2D hit = Physics2D.Raycast(rayOrigin, -Vector2.up, Mathf.Infinity, _charVariables.floorMask);
+
+            if (hit)
+            {
+                float slopeAngle = Vector2.Angle(hit.normal, Vector2.up);
+                if (slopeAngle != 0 && slopeAngle <= _charVariables.maxDecendAngle)
+                {
+                    if (Mathf.Sign(hit.normal.x) == directionX)
+                    {
+                        if(hit.distance - skinWidth <= (Mathf.Tan(slopeAngle * Mathf.Deg2Rad) * Mathf.Abs(velocity.x))/10)
+                        {
+                            Debug.Log("Descending Slope");
+                            Debug.Log(slopeAngle);
+                            float moveDistance = Mathf.Abs(velocity.x);
+                            float decVelY = (Mathf.Sin(slopeAngle * Mathf.Deg2Rad) * moveDistance);
+
+                            velocity.x = (Mathf.Cos(slopeAngle * Mathf.Deg2Rad) * moveDistance * Mathf.Sign(velocity.x)) - (_charVariables.frameIntialVel.x * Time.deltaTime);
+                            velocity.y -= decVelY + (_charVariables.frameIntialVel.y * Time.deltaTime);
+
+                            collisionInfo.slopeAngle = slopeAngle;
+                            collisionInfo.descendingSlope = true;
+                            collisionInfo.below = true;
+                        }
+                    }
+                }
+            }
+
         }
 
         #endregion
