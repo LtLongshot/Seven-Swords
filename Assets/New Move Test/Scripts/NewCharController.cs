@@ -327,12 +327,13 @@ namespace SevenSwords.CharacterCore
                             float moveDistance = Mathf.Abs(velocity.x);
                             float decVelY = (Mathf.Sin(slopeAngle * Mathf.Deg2Rad) * moveDistance);
 
-                            velocity.x = (Mathf.Cos(slopeAngle * Mathf.Deg2Rad) * moveDistance * Mathf.Sign(velocity.x)) - (_charVariables.frameIntialVel.x * Time.deltaTime);
+                            velocity.x = (((Mathf.Cos(slopeAngle * Mathf.Deg2Rad) * moveDistance)+1f) * Mathf.Sign(velocity.x)) - (_charVariables.frameIntialVel.x * Time.deltaTime);
                             velocity.y -= decVelY + (_charVariables.frameIntialVel.y * Time.deltaTime);
 
                             collisionInfo.slopeAngle = slopeAngle;
                             collisionInfo.descendingSlope = true;
                             collisionInfo.below = true;
+                            collisionInfo.grounded = true;
                         }
                     }
                 }

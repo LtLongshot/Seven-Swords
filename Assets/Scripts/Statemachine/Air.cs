@@ -53,6 +53,10 @@ namespace SevenSwords.StateMchn
 			if (owner.collisionInfo.grounded)
 			{
 				owner._charVariables.velocity.y = 0;
+				if(owner._charVariables.velocity.x != 0)
+				{
+					owner._stateMachine.ChangeState(new Walk(owner));
+				}else
 				owner._stateMachine.ChangeState(new Idle(owner));
 			}
 
