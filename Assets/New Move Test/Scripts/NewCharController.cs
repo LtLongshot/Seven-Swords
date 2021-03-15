@@ -187,7 +187,7 @@ namespace SevenSwords.CharacterCore
 
 
                     //detect grounded
-                    if (collisionInfo.below && rayLength <= skinWidth + 0.001) //Skinwidth + buffer
+                    if (collisionInfo.below && rayLength <= skinWidth + 0.01) //Skinwidth + buffer
                     {
                         groundCount++;
                     }
@@ -227,7 +227,7 @@ namespace SevenSwords.CharacterCore
                 //debug
                 Debug.DrawRay(rayOrigin, Vector2.right * directionX * rayLength, Color.red);
 
-                if (hit)
+                if (hit && velocity.x != 0f)
                 {
                     float slopeAngle = Vector2.Angle(hit.normal, Vector2.up);
 
@@ -327,8 +327,8 @@ namespace SevenSwords.CharacterCore
                             float moveDistance = Mathf.Abs(velocity.x);
                             float decVelY = (Mathf.Sin(slopeAngle * Mathf.Deg2Rad) * moveDistance);
 
-                            velocity.x = (((Mathf.Cos(slopeAngle * Mathf.Deg2Rad) * moveDistance)+1f) * Mathf.Sign(velocity.x)) - (_charVariables.frameIntialVel.x * Time.deltaTime);
-                            velocity.y -= decVelY + (_charVariables.frameIntialVel.y * Time.deltaTime);
+                            velocity.x = (((Mathf.Cos(slopeAngle * Mathf.Deg2Rad) * moveDistance)+1f) * Mathf.Sign(velocity.x));
+                            velocity.y -= decVelY;
 
                             collisionInfo.slopeAngle = slopeAngle;
                             collisionInfo.descendingSlope = true;
@@ -351,8 +351,12 @@ namespace SevenSwords.CharacterCore
             Vector3 accelleration;
             accelleration = ((_charVariables.frameIntialVel - _charVariables.velocity) / Time.deltaTime);
 
-            transform.position += _charVariables.velocity * Time.deltaTime + accelleration * (Time.deltaTime * Time.deltaTime * 0.5f);
-            
+            if (!collisionInfo.climbingSlope || !collisionInfo.descendingSlope)
+                transform.position += _charVariables.velocity * Time.deltaTime + accelleration * (Time.deltaTime * Time.deltaTime * 0.5f);
+            else
+                transform.position += _charVariables.velocity * Time.deltaTime;
+
+
             _charVariables.velocity += (accelleration * (Time.deltaTime/2)) * Time.deltaTime;
         }
 

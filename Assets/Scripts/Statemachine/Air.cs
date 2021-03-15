@@ -47,7 +47,7 @@ namespace SevenSwords.StateMchn
 				owner._charVariables.velocity.y += owner._charVariables.gravity * Time.deltaTime;
 
 			//TODO: Redo Air X Movement
-			owner._charVariables.velocity.x = 2*xVel;
+			owner._charVariables.velocity.x = 5*xVel;
 
 			
 			if (owner.collisionInfo.grounded)
