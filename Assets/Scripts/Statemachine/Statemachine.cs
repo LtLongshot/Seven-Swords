@@ -9,6 +9,26 @@ namespace SevenSwords.CharacterCore
 		void Exit();
 	}
 
+
+	//Takes in a obj and inhereted members can take information and point towards the correct state accordingly
+	public interface TransitionState
+	{
+		public IState Transition();
+	}
+
+	//test example
+	class TestTransition: TransitionState
+	{
+		object vars;
+		NewCharController owner;
+		public TestTransition(object vars, NewCharController owner) { this.vars = vars; this.owner = owner; }
+		public IState Transition()
+		{
+			//do stuff with vars and return the state to be used
+			return new TestState(owner);
+		}
+	}
+
 	public class StateMachine
 	{
 		//initialisation state
@@ -62,10 +82,14 @@ namespace SevenSwords.CharacterCore
 		}
 
 		//lock a state for a set period of time (Cannot be changed)
-		public void LockState(float time)
+		public void LockState()
 		{
 			stateLocked = true;
-			timeUnlock = Time.time + time;
+		}
+
+		public void UnlockState()
+		{
+			stateLocked = false;
 		}
 	}
 

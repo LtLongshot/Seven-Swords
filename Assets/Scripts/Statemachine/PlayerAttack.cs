@@ -1,15 +1,17 @@
 ﻿using UnityEngine;
 using SevenSwords.CharacterCore;
+using SevenSwords.Utility;
+using System.Collections;
 
 namespace SevenSwords.StateMchn
 {
 	public class PlayerAttack : IState
 	{
 		NewCharController owner;
-		NewCharController.HitboxData hitboxData;
+		Hitbox hitboxData;
 		GameObject hitboxCreationPoint;
 
-		public PlayerAttack(NewCharController owner, NewCharController.HitboxData hitboxData) { this.owner = owner; this.hitboxData = hitboxData; }
+		public PlayerAttack(NewCharController owner, Hitbox hitboxData) { this.owner = owner; this.hitboxData = hitboxData; }
 
 		private float hitboxCreationTime;
 		private float hitboxActiveTime;
@@ -25,30 +27,36 @@ namespace SevenSwords.StateMchn
 		public void Enter()
 		{
 			//change animation
+			owner._stateMachine.LockState();
 
 			hitboxCreationTime = hitboxData.hitboxCreationTime + Time.time;
 			hitboxActiveTime = hitboxData.hitboxLingeringTime + Time.time;
 			enemyHit = false;
-		}
+			Debug.Log("Attacking");
 
-		public void Execute()
-		{
 			//gravity affecting and can move L/R
 			owner._charVariables.velocity.y = 0;
 			owner._charVariables.velocity.x = 0;
 
+		}
+
+		public void Execute()
+		{
 			//create hitbox if not created and ready to be created
 			if (!hitboxCreated && Time.time >= hitboxCreationTime)
 			{
 				//hitbox creation
-				Collider2D[] collisions = owner.CreatePlayerHitbox(hitboxData);
+				Collider2D[] collisions = owner.manager.CreatePlayerHitbox(hitboxData);
 				hitboxCreated = true;
 				hitboxCreatedThisFrame = true;
+				owner.manager.HitboxDebug(hitboxData, Color.white);
 				if (collisions.Length > 0)
 				{
 					foreach (Collider2D hit in collisions)
 					{
-						//hit.GetComponent<Enemy>().getHit(hitboxData.damage, hitboxData.hitstun, hitboxData.colour);
+						owner._stateMachine.UnlockState();
+						owner._stateMachine.ChangeState(new Idle(owner));
+						hit.GetComponent<Enemy>().getHit(hitboxData.damage, hitboxData.hitstun, hitboxData.colour);
 					}
 					enemyHit = true;
 				}
@@ -56,12 +64,17 @@ namespace SevenSwords.StateMchn
 			else if (hitboxCreated && Time.time < hitboxActiveTime && !hitboxCreatedThisFrame && !enemyHit)
 			{
 				//still looking for hitbox
-				Collider2D[] collisions = owner.CreatePlayerHitbox(hitboxData);
+				Collider2D[] collisions = owner.manager.CreatePlayerHitbox(hitboxData);
+				owner.manager.HitboxDebug(hitboxData, Color.white);
+
 				if (collisions.Length > 0)
 				{
 					foreach (Collider2D hit in collisions)
 					{
-						//hit.GetComponent<Enemy>().getHit(hitboxData.damage, hitboxData.hitstun, hitboxData.colour);
+						owner._stateMachine.UnlockState();
+						owner._stateMachine.ChangeState(new Idle(owner));
+
+						hit.GetComponent<Enemy>().getHit(hitboxData.damage, hitboxData.hitstun, hitboxData.colour);
 					}
 					enemyHit = true;
 				}
@@ -69,13 +82,11 @@ namespace SevenSwords.StateMchn
 			else if (hitboxCreated && Time.time >= hitboxActiveTime && !enemyHit)
 			{
 				//wiffed
+				owner._stateMachine.UnlockState();
 				owner._stateMachine.ChangeState(new Idle(owner));
 			}
-
 			hitboxCreatedThisFrame = false;
 		}
-
-
 
 		public void Exit()
 		{

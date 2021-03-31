@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using SevenSwords.CharacterCore;
+using SevenSwords.Utility;
 
 namespace SevenSwords.StateMchn
 {
@@ -18,8 +19,13 @@ namespace SevenSwords.StateMchn
 				{
 					switch (owner._stateMachine.stateInputs._inputList[i].input)
 					{
+						case (StateInputs.Inputs.attack):
+							owner._stateMachine.ChangeState(new PlayerAttack(owner, (Hitbox) owner._stateMachine.stateInputs._inputList[i].arg));
+							break;
 						case (StateInputs.Inputs.jump):
-							owner.jump();
+							owner._charVariables.hasJumped = true;
+							owner._charVariables.velocity.y = owner._charVariables.jumpVel;
+							owner._stateMachine.ChangeState(new Air(owner));
 							break;
 
 						case (StateInputs.Inputs.horizontal):
@@ -41,7 +47,6 @@ namespace SevenSwords.StateMchn
 
 		public void Execute()
 		{
-			owner._charVariables.velocity.x = 0;
 			owner._charVariables.velocity.y = owner._charVariables.gravity;
 
 			if (!owner.collisionInfo.grounded)

@@ -1,12 +1,14 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using SevenSwords.Utility;
+
 namespace SevenSwords.CharacterCore {
 	public class StateInputs
 	{
 		public enum Inputs { vertical, horizontal, attack, attack2, jump }
-		private List<(Inputs input, float value)> inputList = new List<(Inputs, float)>();
-		public List<(Inputs input, float value)> _inputList { get => inputList;}
+		private List<(Inputs input, object arg)> inputList = new List<(Inputs, object)>();
+		public List<(Inputs input, object arg)> _inputList { get => inputList;}
 
 		public void InputUpdate()
 		{
@@ -19,7 +21,7 @@ namespace SevenSwords.CharacterCore {
 		}
 
 		/// <summary>
-		/// Horizontal movement controlls
+		/// Horizontal movement controls
 		/// </summary>
 		/// <param name="xValue"> position of axis between -1 and 1 </param>
 		public void horizontalAxis (float xValue)
@@ -32,7 +34,10 @@ namespace SevenSwords.CharacterCore {
 			inputList.Add((Inputs.jump, value));
 		}
 
-
+		public void attack(Hitbox hitbox)
+		{
+			inputList.Add((Inputs.attack, hitbox));
+		}
 }
 }
 

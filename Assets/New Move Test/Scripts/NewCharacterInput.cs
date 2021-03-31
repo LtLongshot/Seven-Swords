@@ -3,13 +3,13 @@ using System.Collections.Generic;
 using UnityEngine;
 using Rewired;
 using SevenSwords.CharacterCore;
+using SevenSwords.Utility;
 
 public class NewCharacterInput : MonoBehaviour
 {
     //Ground Speed
     public float slowWalkSpeed = 2f;
     public float walkspeed = 5f;
-    public float runspeed = 6;
 
     public float jumpApexTime = 0.3f;
     public float jumpHeights = 1f;
@@ -35,9 +35,6 @@ public class NewCharacterInput : MonoBehaviour
         }
 
         charController.setJumpValues(jumpHeights, jumpApexTime);
-
-        HitboxSetup();
-
     }
 
     // Update is called once per frame
@@ -55,12 +52,12 @@ public class NewCharacterInput : MonoBehaviour
             if (!player.GetButton("WalkMod"))
             {
                 currentSpeed = Mathf.Sign(player.GetAxis("MoveHorizontal")) * slowWalkSpeed;
-                charController._stateMachine.stateInputs.horizontalAxis(player.GetAxis("MoveHorizontal"));
+                charController._stateMachine.stateInputs.horizontalAxis(currentSpeed);
             }
             else
             {
                 currentSpeed = Mathf.Sign(player.GetAxis("MoveHorizontal")) * walkspeed;
-                charController._stateMachine.stateInputs.horizontalAxis(player.GetAxis("MoveHorizontal"));
+                charController._stateMachine.stateInputs.horizontalAxis(currentSpeed);
             }
         }
     }
@@ -73,26 +70,36 @@ public class NewCharacterInput : MonoBehaviour
         }
     }
 
-        #region Player Attacks
+    #region Player Attacks
 
-        private NewCharController.HitboxData basicAttack1;
-        void HitboxSetup()
-        {
-            basicAttack1.damage = 10f;
-            basicAttack1.hitboxCreationTime = 0.1f;
-            basicAttack1.hitboxLingeringTime = 0.2f;
-            basicAttack1.hitboxSize = new Vector2(0.2f, 0.2f);
-            basicAttack1.colour = NewCharController.BladeColour.white;
-            basicAttack1.hitstun = 1f;
-        }
+    private Hitbox basicAttack1 = new Hitbox {
+        damage = 10f,
+        hitboxCreationTime = 0.1f,
+        hitboxLingeringTime = 0.2f,
+        hitboxSize = new Vector2(0.4f, 0.4f),
+        colour = Hitbox.BladeColour.white,
+        hitstun = 1f,
+        hitboxOffset = new Vector2(0f, 0f)
+    };
 
-        void PlayerBasicAttack()
+    private Hitbox greenAttack = new Hitbox
     {
+        damage = 20f,
+        hitboxCreationTime = 0.5f,
+        hitboxLingeringTime = 0.2f,
+        hitboxSize = new Vector2(1f, 0.5f),
+        colour = Hitbox.BladeColour.green,
+        hitstun = 5f,
+        hitboxOffset = new Vector2(0f, 0f)
+    };
+
+    void PlayerBasicAttack()
+        {
             if (player.GetButtonDown("BasicAttack"))
             {
-                charController.PlayerBasicAttack(basicAttack1);
+                charController._stateMachine.stateInputs.attack(basicAttack1);
             }
         }
-        #endregion
+    #endregion
 }
 

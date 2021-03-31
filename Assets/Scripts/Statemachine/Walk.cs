@@ -1,5 +1,7 @@
 ﻿using UnityEngine;
 using SevenSwords.CharacterCore;
+using SevenSwords.Utility;
+
 namespace SevenSwords.StateMchn
 {
 	public class Walk : IState
@@ -20,12 +22,17 @@ namespace SevenSwords.StateMchn
 				{
 					switch (owner._stateMachine.stateInputs._inputList[i].input)
 					{
-						case (StateInputs.Inputs.jump):
-							owner.jump();
+						case (StateInputs.Inputs.attack):
+							owner._stateMachine.ChangeState(new PlayerAttack(owner, (Hitbox)owner._stateMachine.stateInputs._inputList[i].arg));
 							break;
-
+						case (StateInputs.Inputs.jump):
+							owner._charVariables.hasJumped = true;
+							owner._charVariables.velocity.y = owner._charVariables.jumpVel;
+							Debug.Log("Ooof");
+							owner._stateMachine.ChangeState(new Air(owner));
+							break;
 						case (StateInputs.Inputs.horizontal):
-							xVel = owner._stateMachine.stateInputs._inputList[i].value;
+							xVel = (float)owner._stateMachine.stateInputs._inputList[i].arg;
 							break;
 					}
 				}
@@ -41,7 +48,7 @@ namespace SevenSwords.StateMchn
 
 		public void Execute()
 		{
-			owner._charVariables.velocity.x = 5 * xVel;
+			owner._charVariables.velocity.x = xVel;
 			owner._charVariables.velocity.y = owner._charVariables.gravity;
 
 			if (!owner.collisionInfo.grounded)

@@ -23,7 +23,7 @@ namespace SevenSwords.StateMchn
 					switch (owner._stateMachine.stateInputs._inputList[i].input)
 					{
 						case (StateInputs.Inputs.horizontal):
-							xVel = owner._stateMachine.stateInputs._inputList[i].value;
+							xVel = (float)owner._stateMachine.stateInputs._inputList[i].arg;
 							break;
 					}
 				}
@@ -47,7 +47,7 @@ namespace SevenSwords.StateMchn
 				owner._charVariables.velocity.y += owner._charVariables.gravity * Time.deltaTime;
 
 			//TODO: Redo Air X Movement
-			owner._charVariables.velocity.x = 5*xVel;
+			owner._charVariables.velocity.x = xVel;
 
 			
 			if (owner.collisionInfo.grounded)

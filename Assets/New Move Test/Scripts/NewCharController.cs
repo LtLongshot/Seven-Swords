@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using SevenSwords.StateMchn;
 using TMPro;
+using SevenSwords.Utility;
 
 namespace SevenSwords.CharacterCore
 {
@@ -26,7 +27,6 @@ namespace SevenSwords.CharacterCore
         public bool isRight = true;
 
         public int floorMask = 1 << 8;//intrinsic
-        public int enemyMask = 1 << 10;//intrinsic
 
         public bool hasJumped = false;
 
@@ -41,6 +41,8 @@ namespace SevenSwords.CharacterCore
 
         private CharVariables charVariables = new CharVariables();
         public CharVariables _charVariables { get { return charVariables; } set { charVariables = value; } }
+
+        public CharacterManager manager; //maybe change to something else for inheretance
 
         // Start is called before the first frame update
         void Start()
@@ -360,75 +362,12 @@ namespace SevenSwords.CharacterCore
             _charVariables.velocity += (accelleration * (Time.deltaTime/2)) * Time.deltaTime;
         }
 
-        public void horizontalMove(float xVel)
-        {
-            currentXSpeed = xVel;
-            if(!(_stateMachine.currentState is Walk) &&!(_stateMachine.currentState is Air))
-            {
-                _stateMachine.ChangeState(new Walk(this));
-            }
-        }
-
-        public void checkIdle()
-        {
-            if(!(_stateMachine.currentState is Idle) && !(_stateMachine.currentState is Air))
-            {
-                _stateMachine.ChangeState(new Idle(this));
-            }
-            currentXSpeed = 0f;
-        }
-
 		public void setJumpValues(float jumpHeight, float jumpApexTime)
         {
             _charVariables.gravity = -(jumpHeight) / Mathf.Pow(jumpApexTime, 2);
             _charVariables.jumpVel = Mathf.Abs(_charVariables.gravity) * jumpApexTime;
         }
-
-        public void jump()
-        {
-            if (!(_stateMachine.currentState is Air))
-            {
-                _charVariables.hasJumped = true;
-                _charVariables.velocity.y = _charVariables.jumpVel;
-                _stateMachine.ChangeState(new Air(this));
-            }
-        }
         #endregion
-
-        public enum BladeColour { white, green, red, blue };
-
-        public struct HitboxData
-        {
-            public float damage;
-            public float hitboxCreationTime;
-            public float hitboxLingeringTime; //Time from frame it is changed to so creation time + Lingering time
-            public Vector2 hitboxSize;
-            public BladeColour colour;
-            public float hitstun;
-        }
-
-        public GameObject HitboxCreationPoint;
-
-        #region Player Specifics
-        public void PlayerBasicAttack(HitboxData hitbox)
-        {
-            if (!(_stateMachine.currentState is PlayerAttack))
-            {
-                _stateMachine.ChangeState(new PlayerAttack(this, hitbox));
-                _stateMachine.LockState(hitbox.hitboxLingeringTime);
-            }
-        }
-
-        public Collider2D[] CreatePlayerHitbox(HitboxData hitbox)
-        {
-            //this is a lil jank for garbage collection
-            //for right facing only ATM
-            if (_charVariables.isRight)
-                return Physics2D.OverlapBoxAll(transform.position + (_charVariables.hitboxCreationPos + new Vector3(hitbox.hitboxSize.x / 2, 0, 0)), hitbox.hitboxSize, 0, _charVariables.enemyMask);
-            else
-                return Physics2D.OverlapBoxAll(transform.position + (_charVariables.hitboxCreationNeg - new Vector3(hitbox.hitboxSize.x / 2, 0, 0)), hitbox.hitboxSize, 0, _charVariables.enemyMask);
-        }
-		#endregion
 
 		#region Debug Tools
 		/// <summary>
