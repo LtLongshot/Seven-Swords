@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
-namespace SevenSwords.CharacterCore
+using SevenSwords.CharacterCore;
+namespace SevenSwords.StateMchn
 {
 	public interface IState
 	{

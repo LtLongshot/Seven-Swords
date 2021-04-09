@@ -3,6 +3,7 @@ using UnityEngine;
 
 namespace Editor
 {
+#if UNITY_EDITOR
     [CustomPropertyDrawer(typeof(Optional<>))]
     public class OptionalPropertyDrawer : PropertyDrawer
     {
@@ -21,6 +22,7 @@ namespace Editor
             var valueProperty = property.FindPropertyRelative("value");
             var enabledProperty = property.FindPropertyRelative("enabled");
 
+            EditorGUI.BeginProperty(position, label, property);
             position.width -= 24;
             EditorGUI.BeginDisabledGroup(!enabledProperty.boolValue);
             EditorGUI.PropertyField(position, valueProperty, label, true);
@@ -30,6 +32,8 @@ namespace Editor
             position.width = position.height = EditorGUI.GetPropertyHeight(enabledProperty);
             position.x -= position.width;
             EditorGUI.PropertyField(position, enabledProperty, GUIContent.none);
+            EditorGUI.EndProperty();
         }
     }
+#endif
 }

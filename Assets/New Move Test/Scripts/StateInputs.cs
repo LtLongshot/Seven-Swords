@@ -6,7 +6,7 @@ using SevenSwords.Utility;
 namespace SevenSwords.CharacterCore {
 	public class StateInputs
 	{
-		public enum Inputs { vertical, horizontal, attack, attack2, jump }
+		public enum Inputs { vertical, horizontal, attack, attack2, jump, bladeAttack }
 		private List<(Inputs input, object arg)> inputList = new List<(Inputs, object)>();
 		public List<(Inputs input, object arg)> _inputList { get => inputList;}
 
@@ -37,6 +37,11 @@ namespace SevenSwords.CharacterCore {
 		public void attack(Hitbox hitbox)
 		{
 			inputList.Add((Inputs.attack, hitbox));
+		}
+
+		public void bladeAttack(Hitbox hitbox)
+		{
+			inputList.Add((Inputs.bladeAttack, hitbox));
 		}
 }
 }

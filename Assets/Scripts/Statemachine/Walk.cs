@@ -34,6 +34,9 @@ namespace SevenSwords.StateMchn
 						case (StateInputs.Inputs.horizontal):
 							xVel = (float)owner._stateMachine.stateInputs._inputList[i].arg;
 							break;
+						case (StateInputs.Inputs.bladeAttack):
+							owner._stateMachine.ChangeState(new BladeTransition((Hitbox)owner._stateMachine.stateInputs._inputList[i].arg, owner).Transition());
+							break;
 					}
 				}
 			}

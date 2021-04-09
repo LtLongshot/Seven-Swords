@@ -17,6 +17,7 @@ public class NewCharacterInput : MonoBehaviour
     private float currentSpeed;
 
     private NewCharController charController;
+    public CharacterManager charManager;
 
     public int playerID = 0;
     public Rewired.Player player { get { return ReInput.isReady ? ReInput.players.GetPlayer(playerID) : null; } }
@@ -34,6 +35,11 @@ public class NewCharacterInput : MonoBehaviour
             Debug.Log("No Char controller dummy");
         }
 
+        charManager = gameObject.GetComponent<CharacterManager>();
+        if (charManager == null)
+        {
+            Debug.Log("No Char manager dummy");
+        }
         charController.setJumpValues(jumpHeights, jumpApexTime);
     }
 
@@ -43,6 +49,7 @@ public class NewCharacterInput : MonoBehaviour
         CheckHorizontalInput();
         CheckJump();
         PlayerBasicAttack();
+        PlayerBladeAttack();
     }   
 
     void CheckHorizontalInput()
@@ -86,7 +93,7 @@ public class NewCharacterInput : MonoBehaviour
     {
         damage = 20f,
         hitboxCreationTime = 0.5f,
-        hitboxLingeringTime = 0.2f,
+        hitboxLingeringTime = 0.9f,
         hitboxSize = new Vector2(1f, 0.5f),
         colour = Hitbox.BladeColour.green,
         hitstun = 5f,
@@ -100,6 +107,19 @@ public class NewCharacterInput : MonoBehaviour
                 charController._stateMachine.stateInputs.attack(basicAttack1);
             }
         }
+
+    void PlayerBladeAttack()
+    {
+        if (player.GetButtonDown("BladeAttack"))
+        {
+            switch (charManager.currentColour)
+            {
+                case (Hitbox.BladeColour.green):
+                    charController._stateMachine.stateInputs.bladeAttack(greenAttack);
+                    break;
+            }
+        }
+    }
     #endregion
 }
 

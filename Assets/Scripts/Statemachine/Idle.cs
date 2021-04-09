@@ -31,6 +31,9 @@ namespace SevenSwords.StateMchn
 						case (StateInputs.Inputs.horizontal):
 							owner._stateMachine.ChangeState(new Walk(owner));
 							break;
+						case (StateInputs.Inputs.bladeAttack):
+							owner._stateMachine.ChangeState(new BladeTransition((Hitbox) owner._stateMachine.stateInputs._inputList[i].arg, owner).Transition());
+							break;
 					}
 				}
 			}

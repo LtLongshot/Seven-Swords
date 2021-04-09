@@ -3,114 +3,85 @@ using System.Collections.Generic;
 using UnityEngine;
 using SevenSwords.CharacterCore;
 using TMPro;
-
+using UnityEngine.Experimental.Rendering.Universal;
 
 public class CameraController : MonoBehaviour
 {
+    
+    private Vector3 cameraTarget = new Vector3(0, 0, 0);
+    private Vector3 cameraPos = new Vector3(0, 0, 0);
+    public Optional<GameObject> targetObject;
+    private Camera mainCamera;
+    [SerializeField]
+    private Optional<PixelPerfectCamera> pixelCamera;
 
-    private Vector3 cameraTarget = new Vector3(0,0,0);
-    public GameObject playerObject;
-    private Camera playerCamera;
+    public Vector2 offset;
+    public bool directTarget = false; // Direct targeting no allowance for movement will lerp to position
+    public float cameraSpeed = 1f;
 
+    //Bounds
+    [SerializeField]
     private float screenSkin = 0.4f;  //this is the % for the screen skin
-
-    const float slowLerp = 8f;
-    private Vector2 vertBounds; //These bounds are for the initial box
+    private Vector2 vertBounds; //These bounds are for the initial box (L,R)
     private Vector2 horzBounds;
+    [SerializeField]
+    private Vector3 velocity = Vector3.zero;
+    [SerializeField]
+    private float focusTime= 0f;
 
-    public float velThreshold = 2.5f;
-
-    private float screenSkin2 = 0.10f;  //this is the % for the screen skin
-
-    const float fastLerp = 4f;
-
-    private float currentLerp = 1;
-
-    private Vector2 vertBounds2;
-    private Vector2 horzBounds2;
-
-    public GameObject CameraPosDebug;
-
-    private NewCharController charController;
-
-    // Start is called before the first frame update
     void Start()
     {
-        playerCamera = GetComponent<Camera>();
-        if (playerCamera == null)
+        mainCamera = GetComponent<Camera>();
+        if (mainCamera == null)
         {
-            Debug.Log("No Camera component detected");
+            Debug.Log("No Camera component detected, please attach camera component");
         }
-
-        vertBounds = new Vector2(screenSkin, 1- screenSkin);
-        horzBounds = new Vector2(screenSkin, 1- screenSkin); 
-        vertBounds2 = new Vector2(screenSkin2, 1- screenSkin2);
-        horzBounds2 = new Vector2(screenSkin2, 1- screenSkin2);
-
-        cameraTarget = playerCamera.WorldToViewportPoint(playerObject.transform.position);
+        cameraTarget = mainCamera.WorldToViewportPoint(targetObject.Value.transform.position);
         cameraTarget.z = 0;
 
-        charController = playerObject.GetComponent<NewCharController>();
+
+        vertBounds = new Vector2(screenSkin, 1 - screenSkin);
+        horzBounds = new Vector2(screenSkin, 1 - screenSkin);
     }
 
-    // Update is called once per frame
+
     void LateUpdate()
-    { 
-        if (Mathf.Abs(charController._charVariables.velocity.x) < velThreshold)
-        {
-
-            if (playerCamera.WorldToViewportPoint(playerObject.transform.position).x < horzBounds.x || playerCamera.WorldToViewportPoint(playerObject.transform.position).x > horzBounds.y)
-            {
-                currentLerp = (1f - Mathf.Abs(playerCamera.WorldToViewportPoint(playerObject.transform.position).x - 0.5f))/slowLerp;
-                cameraTarget = playerCamera.WorldToViewportPoint(playerObject.transform.position);
-                cameraTarget.z = 0;
-                //currentLerp = 0.1f;
-            }
-            else
-            {
-                currentLerp = (1f - Mathf.Abs(playerCamera.WorldToViewportPoint(playerObject.transform.position).x - 0.5f))/slowLerp;
-                //if camera is at the target set to default
-                if (transform.position.x <= playerCamera.ViewportToWorldPoint(cameraTarget).x +0.05 || transform.position.x >= playerCamera.ViewportToWorldPoint(cameraTarget).x + 0.05)
-                {
-                    cameraTarget = new Vector3(0.5f, 0.5f, 0);
-                }
-            }
-        }
-        else
-        {
-            if (charController._charVariables.velocity.x > 0) //moving right
-            {
-                cameraTarget = playerCamera.WorldToViewportPoint(playerObject.transform.position);
-                cameraTarget.x = cameraTarget.x + (0.5f - horzBounds2.x);
-                cameraTarget.z = 0;
-                currentLerp = (1f - Mathf.Abs(playerCamera.WorldToViewportPoint(playerObject.transform.position).x-0.5f))/fastLerp;
-            }else if(charController._charVariables.velocity.x < 0) //moving left
-            {
-                cameraTarget = playerCamera.WorldToViewportPoint(playerObject.transform.position);
-                cameraTarget.x = cameraTarget.x - (0.5f - horzBounds2.x);
-                cameraTarget.z = 0;
-
-                currentLerp = (1f - Mathf.Abs(playerCamera.WorldToViewportPoint(playerObject.transform.position).x - 0.5f))/fastLerp;
-
-            }
-        }
-        //transform.position = playerCamera.ViewportToWorldPoint(cameraTarget);
-        updatePosition(cameraTarget);
-
-        //Target Debug
-        CameraPosDebug.GetComponent<TextMeshProUGUI>().SetText("Cam Target Pos: " + cameraTarget);
-    }
-
-    public void updatePosition(Vector3 position)
     {
-        float vel = 3;
-
-        //transform.position = playerCamera.ViewportToWorldPoint(cameraTarget);
-        transform.position = new Vector3(Mathf.SmoothStep(transform.position.x, playerCamera.ViewportToWorldPoint(cameraTarget).x, currentLerp),transform.position.y, transform.position.z); 
+        if (targetObject.Enabled)
+        {
+            cameraTarget = mainCamera.WorldToViewportPoint(targetObject.Value.transform.position);
+            cameraTarget.z = 0;
+            cameraTarget += (Vector3)offset;
+            //velocity = targetObject.Value.GetComponent<NewCharController>()._charVariables.velocity;
+            moveTowardsTarget(mainCamera.ViewportToWorldPoint(cameraTarget), cameraSpeed);
+        }
     }
 
-    bool screenDetection()
+    void smoothingCheck()
     {
-        return true;
+        if(!directTarget)
+        {
+            //check if within bounds
+        }
     }
+
+    private Vector2 PixelPerfectClamp(Vector2 moveVector, float pixelsPerUnit)
+    {
+        Vector2 vectorInPixels = new Vector2(
+            Mathf.RoundToInt(moveVector.x * pixelsPerUnit),
+            Mathf.RoundToInt(moveVector.y * pixelsPerUnit));
+
+        return vectorInPixels / pixelsPerUnit;
+    }
+
+    //Move camera towards specified point
+    private void moveTowardsTarget(Vector3 target, float speed)
+    {
+        cameraPos = Vector3.SmoothDamp(
+            (Vector3)PixelPerfectClamp(transform.position, 64) + new Vector3(0, 0, transform.position.z), 
+            (Vector3)PixelPerfectClamp(target, 64) + new Vector3(0, 0, transform.position.z), ref velocity, focusTime);
+        transform.position = cameraPos;
+        //transform.position = target;
+    }
+
 }
