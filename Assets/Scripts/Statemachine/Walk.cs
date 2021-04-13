@@ -28,7 +28,6 @@ namespace SevenSwords.StateMchn
 						case (StateInputs.Inputs.jump):
 							owner._charVariables.hasJumped = true;
 							owner._charVariables.velocity.y = owner._charVariables.jumpVel;
-							Debug.Log("Ooof");
 							owner._stateMachine.ChangeState(new Air(owner));
 							break;
 						case (StateInputs.Inputs.horizontal):
@@ -46,7 +45,6 @@ namespace SevenSwords.StateMchn
 		public void Enter()
 		{
 			//change animation
-			Debug.Log("walk");
 		}
 
 		public void Execute()

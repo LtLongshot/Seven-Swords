@@ -34,7 +34,6 @@ namespace SevenSwords.StateMchn
 		public void Enter()
 		{
 			//change animation
-			Debug.Log("Air");
 			owner.collisionInfo.grounded = false;
 		}
 

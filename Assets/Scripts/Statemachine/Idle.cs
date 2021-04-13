@@ -43,7 +43,6 @@ namespace SevenSwords.StateMchn
 		public void Enter()
 		{
 			//change animation
-			Debug.Log("Idle");
 			owner._charVariables.velocity.x = 0;
 			owner._charVariables.hasJumped = false;
 		}

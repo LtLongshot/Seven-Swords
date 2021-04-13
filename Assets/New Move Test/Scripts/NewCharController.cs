@@ -296,7 +296,7 @@ namespace SevenSwords.CharacterCore
 
         void ClimbSlope(ref Vector3 velocity, float slopeAngle)
         {
-            Debug.Log("Climbing");
+            //Debug.Log("Climbing");
             float moveDistance = Mathf.Abs(velocity.x);
             float climbVelY = (Mathf.Sin(slopeAngle * Mathf.Deg2Rad) * moveDistance);
             if (velocity.y <= climbVelY)
@@ -324,8 +324,7 @@ namespace SevenSwords.CharacterCore
                     {
                         if(hit.distance - skinWidth <= (Mathf.Tan(slopeAngle * Mathf.Deg2Rad) * Mathf.Abs(velocity.x))/10)
                         {
-                            Debug.Log("Descending Slope");
-                            Debug.Log(slopeAngle);
+                            //Debug.Log("Descending Slope");
                             float moveDistance = Mathf.Abs(velocity.x);
                             float decVelY = (Mathf.Sin(slopeAngle * Mathf.Deg2Rad) * moveDistance);
 
