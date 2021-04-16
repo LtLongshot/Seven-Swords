@@ -76,6 +76,7 @@ namespace SevenSwords.CharacterCore
             }
 
             resolveMovement();
+            DebugTools();
         }
         void Update()
         {
