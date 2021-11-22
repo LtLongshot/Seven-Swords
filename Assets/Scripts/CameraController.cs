@@ -125,7 +125,7 @@ void FixedUpdate()
 
         if (Input.GetKeyDown("f"))
         {
-            StartCoroutine(LResZoom(baseResolution*3, 2));
+            StartCoroutine(LResZoom(baseResolution*2.5f, 2));
         }
 
         if (Input.GetKeyDown("g"))
@@ -134,10 +134,10 @@ void FixedUpdate()
         }
 
         cameraPos = Vector3.SmoothDamp((transform.position),
-            (Vector3)PixelPerfectClamp(targetObject.Value.transform.position, pixelsPerUnit) + new Vector3(0, 0, -10), ref velocity, focusTime);
+            (targetObject.Value.transform.position), ref velocity, focusTime);
         cameraPos.z = -10f;
 
-        velocityDebug.GetComponent<TextMeshProUGUI>().SetText("Velocity: " + velocity);
+        velocityDebug.GetComponent<TextMeshProUGUI>().SetText("Cam velocity: " + velocity);
 
         transform.position = cameraPos;
     }
